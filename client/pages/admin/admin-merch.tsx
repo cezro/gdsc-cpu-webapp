@@ -4,22 +4,43 @@ import Layout from '../../components/Layout';
 export default function AdminMerch() {
   return (
     <Layout>
-      <h1 className="text-black text-3xl mb-6">Create GDSC merch</h1>
-      <div className="flex flex-col space-y-4">
+      <div className="my-6">
+        <h1 className="text-black text-3xl underline underline-offset-4">
+          Create GDSC merch
+        </h1>
+      </div>
+      <div className="flex flex-col space-y-12">
         <div>
-          <p className="text-black text-md font-semibold">Merch Name</p>
-          <input className='text-black w-64 border border-stone-900' placeholder='Name'/>
+          <p className="text-black text-lg font-semibold mb-1">Merch Name</p>
+          <input
+            className="text-black h-8 w-64 border border-stone-900"
+            placeholder="Name"
+          />
         </div>
         <div>
-          <p className="text-black text-md font-semibold">Merch Photo</p>
-          <input type='file' className='text-black'/>
+          <p className="text-black text-lg font-semibold mb-1">
+            Merch Description
+          </p>
+          <textarea
+            className="text-black h-24 w-1/2 border border-stone-900"
+            placeholder="Description"
+          />
         </div>
         <div>
-          <p className="text-black text-md font-semibold">Add a price to your merch</p>
-          <input className='text-black w-64 border border-stone-900' placeholder='Price'/>
+          <p className="text-black text-lg font-semibold mb-1">Merch Photo</p>
+          <input type="file" className="text-black" />
         </div>
         <div>
-          <button className='h-12 w-36 bg-blue-600 border rounded-xl hover:bg-blue-800'>Publish Merch</button>
+          <p className="text-black text-lg font-semibold mb-1">Merch Price</p>
+          <input
+            className="text-black h-8 w-64 border border-stone-900"
+            placeholder="Price"
+          />
+        </div>
+        <div>
+          <button className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800">
+            Publish Merch
+          </button>
         </div>
       </div>
     </Layout>
