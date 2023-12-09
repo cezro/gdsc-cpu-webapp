@@ -45,6 +45,7 @@
   "author": "cezro",
   "license": "ISC",
   "devDependencies": {
+    "dbmate": "^2.8.0",
     "nodemon": "^3.0.2"
   }
 }
