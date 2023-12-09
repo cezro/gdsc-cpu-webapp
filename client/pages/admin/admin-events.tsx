@@ -53,7 +53,11 @@ export default function AdminEvents() {
           <p className="text-black text-lg font-semibold mb-1">
             Featured Event Photo
           </p>
-          <input type="file" className="text-black" />
+          <input
+            type="file"
+            className="text-black"
+            accept="image/png, image/jpeg"
+          />
         </div>
         <div>
           <button className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800">

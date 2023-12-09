@@ -28,7 +28,11 @@ export default function AdminMerch() {
         </div>
         <div>
           <p className="text-black text-lg font-semibold mb-1">Merch Photo</p>
-          <input type="file" className="text-black" />
+          <input
+            type="file"
+            className="text-black"
+            accept="image/png, image/jpeg"
+          />
         </div>
         <div>
           <p className="text-black text-lg font-semibold mb-1">Merch Price</p>
