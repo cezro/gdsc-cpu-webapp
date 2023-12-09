@@ -1,17 +1,17 @@
 import React from 'react';
+import Image from 'next/image';
 
 function SignUp() {
   return (
-    <div className="w-full bg-[#07063D] flex items-center justify-center min-h-screen">
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-20 mt-5 ">
-        <img
+    <div className="w-full bg-[#07063D] flex flex-col items-center justify-center min-h-screen">
+      <div className="top-5 left-1/2">
+        <Image
           className="justify-center"
-          src="gdsc_logo.png"
+          src="/gdsc_logo.png"
           alt="GDSC Logo"
           width={150}
           height={150}
         />
-
         <div className="text-white absolute left-1/2 transform -translate-x-1/2 -translate-y-5 z-10 ">
           <div className="text-xs">GDSC-CPU</div>
         </div>
@@ -38,7 +38,7 @@ function SignUp() {
               </label>
               <input
                 style={{ background: 'transparent' }}
-                className="w-full rounded-lg p-2 text-xs border rounded-lg"
+                className="w-full p-2 text-xs border rounded-lg"
                 type="text"
                 id="firstName"
               />
@@ -49,7 +49,7 @@ function SignUp() {
               </label>
               <input
                 style={{ background: 'transparent' }}
-                className="w-full rounded-lg p-2 text-xs border rounded-lg"
+                className="w-full p-2 text-xs border rounded-lg"
                 type="text"
                 id="lastName"
               />
@@ -61,7 +61,7 @@ function SignUp() {
             </label>
             <input
               style={{ background: 'transparent' }}
-              className="w-full rounded-lg p-2 text-xs border rounded-lg"
+              className="w-full p-2 text-xs border rounded-lg"
               type="text"
               id="email"
             />
@@ -72,29 +72,29 @@ function SignUp() {
             </label>
             <input
               style={{ background: 'transparent' }}
-              className="w-full rounded-lg p-2 text-xs border rounded-lg"
+              className="w-full p-2 text-xs border rounded-lg"
               type="password"
               id="password"
             />
           </div>
         </div>
-
         <div className="mb-3 flex items-center justify-center ">
-          <div
-            className="max-lg:z-20 bg-[#4285F3] p-2 rounded-lg border-2 border-white relative z-10"
+          <button
+            className="max-lg:z-20 bg-blue-400 hover:bg-blue-600 p-2 rounded-lg relative z-10"
             style={{ width: '70%', maxWidth: '300px' }}
           >
             <text className="text-white justify-center flex items-center text-xs font-bold">
               Create Account
             </text>
-          </div>
+          </button>
         </div>
         <div className="text-white text-center relative z-10">
-          <span className="border-b">
-            <text className="text-xs">
-              Already have an account? <a href="/login">LogIn</a>
-            </text>
-          </span>
+          <text className="text-xs">
+            Already have an account?{' '}
+            <a className="hover:underline undeline-offset-4" href="/login">
+              LogIn
+            </a>
+          </text>
         </div>
       </div>
     </div>
