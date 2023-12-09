@@ -67,6 +67,7 @@ CREATE TABLE pre_order_forms (
 CREATE TABLE merch (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
+    description VARCHAR(255),
     image VARCHAR(4096),
     price INT
 );
