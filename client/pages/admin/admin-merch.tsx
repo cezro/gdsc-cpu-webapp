@@ -9,7 +9,7 @@ export default function AdminMerch() {
           Create GDSC merch
         </h1>
       </div>
-      <div className="flex flex-col space-y-12">
+      <div className="flex flex-col space-y-8">
         <div>
           <p className="text-black text-lg font-semibold mb-1">Merch Name</p>
           <input
