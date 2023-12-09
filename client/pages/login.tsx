@@ -42,10 +42,12 @@ function Login() {
         <div className="text-white mb-7 ">
           <text className="text-xs">Forgot password?</text>
         </div>
-        <div className="border-gray-400 hover:border-gray-200 border-2 p-3 rounded-md">
-          <text className="text-white text-xs justify-center flex items-center">
-            No account yet? Sign Up
-          </text>
+        <div>
+          <button className="h-8 w-full max-lg:z-20 border-2 border-gray-400 hover:border-gray-200 rounded-sm">
+            <text className="text-white justify-center flex items-center text-xs">
+              No account yet? Sign Up
+            </text>
+          </button>
         </div>
       </div>
     </div>
