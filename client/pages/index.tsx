@@ -1,9 +1,10 @@
 import Login from './login';
+import Events from './events';
 import React, { useEffect } from 'react';
 
 export default function Home() {
   useEffect(() => {
-    fetch('http://localhost:3001/api/home')
+    fetch('http://localhost:3000/api/home')
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -12,6 +13,7 @@ export default function Home() {
   return (
     <main>
       <Login></Login>
+      <Events></Events>
     </main>
   );
 }
