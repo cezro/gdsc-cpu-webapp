@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 function Login() {
   return (
-    <div className="w-full bg-[#07063D] flex items-center justify-center min-h-screen">
+    <div className="w-full bg-[#07063d] flex items-center justify-center min-h-screen">
       <div className="w-full lg:w-1/2 p-8 ">
         <div className="justify-center flex items-center">
           <Image
@@ -13,38 +13,41 @@ function Login() {
             height={150}
           />
         </div>
-
         <div className="text-white flex items-center justify-center mb-6 text-xs">
           GDSC-CPU
         </div>
         <div className="w-full">
           <div className="mb-2 ">
             <input
-              className="w-full rounded-sm p-2 text-xs"
-              type="text"
-              placeholder="Email/username"
+              className="text-black w-full rounded-sm p-2 text-xs"
+              type="email"
+              placeholder="Email"
             />
           </div>
-          <div className="mb-2 ">
+          <div className="mb-2">
             <input
-              className="w-full rounded-sm p-2 text-xs"
-              type="text"
+              className="text-black w-full rounded-sm p-2 text-xs"
+              type="password"
               placeholder="Password"
             />
           </div>
         </div>
-        <div className="max-lg:z-20 bg-[#4285F3] p-2 rounded-sm ">
-          <text className="text-white justify-center flex items-center text-xs">
-            Log In
-          </text>
+        <div>
+          <button className="h-8 w-full max-lg:z-20 bg-blue-500 hover:bg-blue-600 rounded-sm">
+            <text className="text-white justify-center flex items-center text-xs">
+              Log In
+            </text>
+          </button>
         </div>
         <div className="text-white mb-7 ">
           <text className="text-xs">Forgot password?</text>
         </div>
-        <div className="border-gray-300 border-2 p-3 rounded-md">
-          <text className="text-white text-xs justify-center flex items-center">
-            No account yet? Sign Up
-          </text>
+        <div>
+          <button className="h-8 w-full max-lg:z-20 border-2 border-gray-400 hover:border-gray-200 rounded-sm">
+            <text className="text-white justify-center flex items-center text-xs">
+              No account yet? Sign Up
+            </text>
+          </button>
         </div>
       </div>
     </div>
