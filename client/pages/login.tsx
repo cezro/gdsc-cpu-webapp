@@ -33,7 +33,7 @@ function Login() {
           </div>
         </div>
         <div>
-          <button className='h-8 w-full max-lg:z-20 bg-blue-500 hover:bg-blue-600 rounded-sm'>
+          <button className="h-8 w-full max-lg:z-20 bg-blue-500 hover:bg-blue-600 rounded-sm">
             <text className="text-white justify-center flex items-center text-xs">
               Log In
             </text>

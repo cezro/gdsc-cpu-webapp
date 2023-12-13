@@ -4,6 +4,7 @@ import Layout from '../../components/Layout';
 export default function AdminMerch() {
   return (
     <Layout>
+      <h1 className="text-stone-900">Edit Merch</h1>
       <div className="my-6">
         <h1 className="text-black text-3xl underline underline-offset-4">
           Create GDSC merch
