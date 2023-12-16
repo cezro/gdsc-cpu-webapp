@@ -11,6 +11,7 @@ export default function Home() {
   }, []);
   return (
     <main>
+      <p>test</p>
       <Login></Login>
     </main>
   );
