@@ -11,7 +11,7 @@ export default function Home() {
   }, []);
   return (
     <main>
-      test
+      test2
       <Login></Login>
     </main>
   );
