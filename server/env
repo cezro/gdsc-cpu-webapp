@@ -1,6 +1,0 @@
-DATABASE_URL=postgres://db_gcw_user:QAQ9n7VWoxXbStFVyMr8jGsR4qbkeu0V@dpg-cln8rq0apebc73f6io10-a.singapore-postgres.render.com/db_gcw
-DATABASE_USER=postgres
-DATABASE_HOST=dpg-cln8rq0apebc73f6io10-a
-DATABASE_NAME=RENDER_DEV_DB
-DATABASE_PASSWORD=QAQ9n7VWoxXbStFVyMr8jGsR4qbkeu0V
-DATABASE_PORT=5432
