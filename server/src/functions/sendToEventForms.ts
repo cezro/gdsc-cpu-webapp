@@ -1,4 +1,4 @@
-import { pool } from '../../db/database/db';
+import pool from '../../db/database/db';
 
 export async function sendToEventForms(params) {
   try {
