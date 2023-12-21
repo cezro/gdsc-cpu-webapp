@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '../../components/Layout';
 
 export default function AdminEvents() {
+  useEffect(() => {
+    fetch('http://localhost:3001/admin/admin-events')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
+  }, []);
   return (
     <Layout>
       <div className="my-6">

@@ -49,6 +49,7 @@
     "@faker-js/faker": "^8.3.1",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/pg": "^8.10.9",
     "dbmate": "^2.8.0",
     "dotenv": "^16.3.1",
     "nodemon": "^3.0.2"
