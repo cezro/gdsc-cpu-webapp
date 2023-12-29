@@ -1,7 +1,7 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
-interface FormData {
+export interface FormData {
   fname: string;
   lname: string;
   email: string;
@@ -16,8 +16,8 @@ function SignUp() {
     password: '',
   });
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
 
     try {
       const response = await fetch('http://localhost:3001/signup', {
@@ -41,8 +41,8 @@ function SignUp() {
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
   return (

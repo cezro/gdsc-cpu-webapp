@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
 function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json()
+      console.log(data)
+    } catch (error) {
+      console.error('Error while login', error)
+    }
+  };
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFormData({... formData, [event.target.name]: event.target.value})
+  }
+  
   return (
-    <form action="/landing-page" method="get">
+    <form action="/landing-page" method="post" onSubmit={handleSubmit}>
       <div className="w-full bg-[#07063d] flex items-center justify-center min-h-screen">
         <div className="w-full lg:w-1/2 p-8 ">
           <div className="justify-center flex items-center">
@@ -24,6 +55,9 @@ function Login() {
                 className="text-black w-full rounded-sm p-2 text-xs"
                 type="email"
                 placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             <div className="mb-2">
@@ -31,6 +65,9 @@ function Login() {
                 className="text-black w-full rounded-sm p-2 text-xs"
                 type="password"
                 placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
               />
             </div>
           </div>
