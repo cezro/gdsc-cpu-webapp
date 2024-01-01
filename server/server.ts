@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker';
 import pool from './db/database/db';
 import express from 'express';
 import cors from 'cors';
+import { getErrorMessage } from './src/functions/getErrorMessage';
 const PORT = 3001;
 
 async function serverStart() {
@@ -73,13 +74,97 @@ async function serverStart() {
     response.json({ message: pool });
   });
 
+  // admin-home methods
+
   app.get('/admin/admin-home', (request, response) => {
     response.json({ message: 'This is the admin home panel' });
   });
 
-  app.get('/admin/admin-merch', (request, response) => {
-    response.json({ message: 'This is the admin merch panel' });
+  // admin-merch methods
+
+    // create merch
+  app.post('/admin/admin-merch', async (request, response) => {
+    try {
+      const { name, description, image, price } = request.body;
+      const newMerch = await pool.query(
+        "INSERT INTO merch (name, description, image, price) VALUES($1, $2, $3, $4) RETURNING *", 
+        [name, description, image, price]
+      );
+
+      response.json(newMerch.rows[0]);
+
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
   });
+
+    // get all merch
+  app.get('/admin/admin-merch', async (request, response) => {
+    try {
+      const allMerch = await pool.query(
+        "SELECT * FROM merch"
+      );
+
+      response.json(allMerch.rows);
+
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+  });
+
+    // get one merch
+  app.get('/admin/admin-merch/:id', async (request, response) => {
+    try {
+      const { id } = request.params;
+      const merch = await pool.query(
+        "SELECT * FROM merch WHERE id = $1", [id]
+      );
+
+      response.json(merch.rows[0]);
+
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+  });
+
+    // update a merch
+  app.put('/admin/admin-merch/:id', async (request, response) => {
+    try {
+      const { id } = request.params;
+      const { name, description, image, price } = request.body;
+      const updateMerch = await pool.query(
+        "UPDATE merch SET name = $1, description = $2, image = $3, price = $4 WHERE id = $5",
+        [name, description, image, price, id]
+      );
+  
+      response.json("Merch was uploaded!");
+  
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+  });
+
+    // delete a merch
+  app.delete('/admin/admin-merch/:id', async (request, response) => {
+    try {
+      const { id } = request.params;
+      const deleteMerch = await pool.query(
+        "DELETE FROM merch WHERE id = $1", [id]
+      );
+  
+      response.json("Merch was deleted!");
+  
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+  })
+
+
+  // client-side merch methods
+
+
+
+  // admin-events methods
 
   app.get('/admin/admin-events', (request, response) => {
     response.json({ message: 'This is the admin events panel' });

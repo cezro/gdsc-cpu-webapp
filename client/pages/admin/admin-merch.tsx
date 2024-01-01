@@ -1,6 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import Layout from '../../components/Layout';
 
+//components
+
+import InputMerch from '@/components/InputMerch';
+import ListMerch from '@/components/ListMerch';
+
+export default function AdminMerch() {
+  return (
+    <Layout>
+      <div className="container">
+        <InputMerch />
+        <ListMerch />
+      </div>
+    </Layout>
+  );
+}
+
+/*
 export default function AdminMerch() {
   useEffect(() => {
     fetch('http://localhost:3001/admin/admin-merch')
@@ -9,6 +26,7 @@ export default function AdminMerch() {
         console.log(data);
       });
   }, []);
+
   return (
     <Layout>
       <h1 className="text-stone-900">Edit Merch</h1>
@@ -58,3 +76,6 @@ export default function AdminMerch() {
     </Layout>
   );
 }
+*/
+
+
