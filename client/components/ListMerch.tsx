@@ -26,8 +26,7 @@ const ListMerch = () => {
     }
   }
 
-  //get merch function
-  const getMerches = async () => {
+  const getAllMerches = async () => {
     try {
       const response = await fetch("http://localhost:3001/admin/admin-merch");
       const jsonData = await response.json();
@@ -39,7 +38,7 @@ const ListMerch = () => {
   }
 
   useEffect(() => {
-    getMerches();
+    getAllMerches();
   }, [] /* bracket ensures useEffect does not repeatedly request multiple times */);
 
   return (
@@ -53,13 +52,6 @@ const ListMerch = () => {
         </tr>
       </thead>
       <tbody>
-        {/*
-        <tr>
-          <td>John</td>
-          <td>Doe</td>
-          <td>john@example.com</td>
-        </tr> 
-        */}
         {merches.map(merch => (
           <tr key={merch.id}>
             <td className="border px-4 py-2">{merch.name}</td>
