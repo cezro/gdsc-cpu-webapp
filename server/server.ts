@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker';
 import pool from './db/database/db';
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import { getErrorMessage } from './src/functions/getErrorMessage';
 const PORT = 3001;
 
@@ -81,6 +82,19 @@ async function serverStart() {
   });
 
   // admin-merch methods
+
+    // upload merch image
+  const storage = multer.diskStorage({
+    destination: function (request, file, callback) {
+      callback(null, './uploads');
+    },
+    filename: function (request, file, callback) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      callback(null, file.originalname);
+    },
+  });
+
+  const upload = multer({ storage: storage });
 
     // create merch
   app.post('/admin/admin-merch', async (request, response) => {
