@@ -43,10 +43,13 @@ const ListMerch = () => {
 
   return (
   <Fragment>
-    <table className="table-auto mt-12 text-center text-black">
+    <table className="table-auto mt-4 text-center text-black">
       <thead>
         <tr>
+          <th className="px-4 py-2">Merch Name</th>
           <th className="px-4 py-2">Description</th>
+          {/* <th className="px-4 py-2">Image</th> */}
+          <th className="px-4 py-2">Price</th>
           <th className="px-4 py-2">Edit</th>
           <th className="px-4 py-2">Delete</th>
         </tr>

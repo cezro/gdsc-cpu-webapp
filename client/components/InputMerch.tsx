@@ -31,9 +31,8 @@ const InputMerch = () => {
 
   return (
     <Fragment>
-      <h1 className="text-center mt-5">PERN Merch List</h1>
       <form className="d-flex mt-5" onSubmit={ onSubmitForm }>
-        <div className="my-6">
+        <div className="my-4">
           <h1 className="text-black text-3xl underline underline-offset-4">
             Create GDSC merch
           </h1>
