@@ -26,8 +26,20 @@ const ListMerch = () => {
     }
   }
 
-  //get merch function
-  const getMerches = async () => {
+  // //get merch function
+  // const getMerch = async (id: number) => {
+  //   try {
+  //     const response = await fetch(`http://localhost:3001/admin/admin-merch/${id}`);
+  //     const jsonData = await response.json();
+
+  //     setMerches(jsonData);
+  //   } catch (err) {
+  //     console.error(getErrorMessage(err));
+  //   }
+  // }
+
+  //get all merch function
+  const getAllMerches = async () => {
     try {
       const response = await fetch("http://localhost:3001/admin/admin-merch");
       const jsonData = await response.json();
@@ -39,7 +51,7 @@ const ListMerch = () => {
   }
 
   useEffect(() => {
-    getMerches();
+    getAllMerches();
   }, [] /* bracket ensures useEffect does not repeatedly request multiple times */);
 
   return (
@@ -67,6 +79,12 @@ const ListMerch = () => {
             {/* <td className="border px-4 py-2">{merch.image}</td> */}
             <td className="border px-4 py-2">P {merch.price}</td>
             <td>
+              {/* <a 
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                href="http://localhost:3000/admin/admin-editMerch"
+              >
+                Edit
+              </a> */}
               <EditMerch merch={merch} />
             </td>
             <td>
