@@ -1,24 +1,27 @@
 import React, { Fragment, useState } from "react";
 import { getErrorMessage } from "@/utils/utilFunctions";
-import CustomModal from "@/components/Modal";
+import Modal from 'react-modal';
 
 const EditMerch = ({ merch }: any) => {
+  const [name, setName] = useState<string>(merch.name);
   const [description, setDescription] = useState<string>(merch.description);
+  const [image, setImage] = useState<File | null>(null);
+  const [price, setPrice] = useState<number | string>(merch.price);
 
-  // Edit description function
-  const updateDescription = async () => {
+  // Edit merch function
+  const updateMerch = async (e: any) => {
+    e.preventDefault();
     try {
-      const body = { description };
+      const body = { name, description, image, price};
       await fetch(`http://localhost:3001/admin/admin-merch/${merch.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      // Optionally, you can update state or perform other actions here
-
-      // Close the modal
+      // Close the modal and refresh the page
       handleCloseModal();
+      window.location.href = "/admin/admin-merch";
     } catch (err) {
       console.error(getErrorMessage(err));
     }
@@ -35,7 +38,14 @@ const EditMerch = ({ merch }: any) => {
   // Close modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Optionally, you can reset state or perform other actions here
+  };
+
+  const customStyles = {
+    content: {
+      width: '50%',
+      height: '50%',
+      margin: 'auto',
+    },
   };
 
   return (
@@ -48,41 +58,57 @@ const EditMerch = ({ merch }: any) => {
         Edit
       </button>
 
-      <CustomModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSave={updateDescription}
-      >
-        <div className="modal-header">
-          <h4 className="modal-title">Edit Merch</h4>
-        </div>
-
-        <div className="modal-body">
-          <input
-            type="text"
-            className="form-control"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        <div className="modal-footer">
-          <button
+      <Modal isOpen={isModalOpen} onRequestClose={handleCloseModal} style={customStyles}>
+        <div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+            Name:
+              <input 
+                type="text" 
+                className='text-black h-8 w-64 border border-stone-900'
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+              />
+            </label >
+          </div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+            Description:
+              <input 
+                type="text" 
+                className='text-black h-8 w-64 border border-stone-900'
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)} 
+              />
+            </label>
+          </div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+              Image:
+              <input 
+                type="file" 
+                className='text-black h-8 w-64 border border-stone-900'
+                onChange={(e) => setImage(e.target.files?.[0] || null)} 
+              />
+            </label>
+          </div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+              Price:
+              <input 
+                type="text" 
+                className='text-black h-8 w-64 border border-stone-900'
+                value={price} 
+                onChange={(e) => setPrice(e.target.value)} 
+              />
+            </label>
+          </div>
+          <button 
             type="button"
-            className="btn btn-warning"
-            onClick={updateDescription}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={handleCloseModal}
-          >
-            Close
-          </button>
+            className="h-10 w-20 bg-yellow-400 border rounded-md hover:bg-blue-800"
+            onClick={updateMerch}>Save</button>
         </div>
-      </CustomModal>
+      </Modal>
     </Fragment>
   );
 };
