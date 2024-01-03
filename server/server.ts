@@ -8,6 +8,7 @@ import cors from 'cors';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import sharp from 'sharp';
 import { getErrorMessage } from './src/functions/getErrorMessage';
 const PORT = 3001;
 
@@ -86,15 +87,15 @@ async function serverStart() {
   // admin-merch methods
 
     // upload merch image
-  const dir = './uploads/merch-image';
+  const merchImageDir = './uploads/merch-image';
 
-  if (!fs.existsSync(dir)){
-      fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(merchImageDir)){
+      fs.mkdirSync(merchImageDir, { recursive: true });
   }
 
   const storage = multer.diskStorage({
     destination: (request, file, callback) => {
-      callback(null, dir);
+      callback(null, merchImageDir);
     },
     filename: (request, file, callback) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -104,35 +105,22 @@ async function serverStart() {
 
   const upload = multer({ storage: storage });
 
-  // app.post('/uploads/merch-image', upload.single('image'), async (req, res) => {
-  //   try {
-  //     if (!req.file) {
-  //       return res.status(400).json({ error: 'No image provided' });
-  //     }
-  
-  //     // Save the file path in the database
-  //     const filePath = path.join(__dirname, 'uploads', 'merch-image', req.file.filename);
-  //     const query = 'INSERT INTO merch (image) VALUES ($1) RETURNING *';
-  //     const values = [filePath];
-  
-  //     const result = await pool.query(query, values);
-  
-  //     return res.status(200).json({ success: true, data: result.rows[0] });
-  //   } catch (error) {
-  //     console.error('Error uploading image', error);
-  //     return res.status(500).json({ error: 'Internal Server Error' });
-  //   }
-  // });  
+  app.use('/uploads/merch-image', express.static(path.join('uploads', 'merch-image')));
 
-    // create merch
   app.post('/admin/admin-merch', upload.single('image') , async (request, response) => {
     try {
       if (!request.file) {
         return response.status(400).json({ error: 'No image provided' });
       }
+
+      // // Resize the image
+      // const resizedImagePath = path.join('uploads', 'merch-image', 'resized', request.file.filename);
+      // await sharp(request.file.path)
+      //   .resize(500, 500) // width, height
+      //   .toFile(resizedImagePath);
   
       // Save the file path in the database
-      const filePath = path.join(__dirname, 'uploads', 'merch-image', request.file.filename);
+      const filePath = path.join('uploads', 'merch-image', request.file.filename);
       const { name, description, price } = request.body;
 
       const query = 'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
