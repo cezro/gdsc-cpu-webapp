@@ -10,21 +10,34 @@ const InputMerch = () => {
 
   const onSubmitForm = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    try {
-      const body = { name, description, image, price };
-      const response = await fetch("http://localhost:3001/admin/admin-merch", {
+  
+    if (!image) {
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('image', image);
+    formData.append('price', price.toString());
+  
+    try {  
+      const formUpload = await fetch("http://localhost:3001/admin/admin-merch", {
         method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify(body)
+        body: formData
       });
 
+      const formUploadResponse = await formUpload.json();
+      console.log('Form uploaded successfully', formUploadResponse);
+  
       window.location.href = "/admin/admin-merch";
     } catch (err) {
+      console.error('Error uploading image', err);
       console.error(getErrorMessage(err));
     }
   }
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setImage(file || null);
   };
@@ -66,9 +79,9 @@ const InputMerch = () => {
               type="file"
               className="text-black"
               accept="image/png, image/jpeg"
-              // onChange={handleImageChange}
+              onChange={handleImageChange}
             />
-            {/* {image && <img src={URL.createObjectURL(image)} alt="Uploaded" />} */}
+            {image && <img src={URL.createObjectURL(image)} alt="Uploaded" />}
           </div>
           <div>
             <p className="text-black text-lg font-semibold mb-1">Merch Price</p>
@@ -81,7 +94,9 @@ const InputMerch = () => {
             />
           </div>
           <div>
-            <button className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800">
+            <button 
+              className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800"
+            >
               Add Merch
             </button>
           </div>
