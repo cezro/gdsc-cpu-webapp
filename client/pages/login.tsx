@@ -82,7 +82,14 @@ function Login() {
             <text className="text-xs">Forgot password?</text>
           </div>
           <div>
-            <button className="h-8 w-full max-lg:z-20 border-2 border-gray-400 hover:border-gray-200 rounded-sm">
+            <button 
+              type="button"
+              className="h-8 w-full max-lg:z-20 border-2 border-gray-400 hover:border-gray-200 rounded-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href='http://localhost:3000/signup';
+                }}
+            >
               <text className="text-white justify-center flex items-center text-xs">
                 No account yet? Sign Up
               </text>
