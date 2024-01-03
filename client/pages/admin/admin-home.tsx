@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import Overview from '../../components/Overview';
+import Member from '../../components/Member'
 
 export default function AdminHome() {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -70,8 +71,10 @@ export default function AdminHome() {
           <p className="text-slate-300 hover:text-white">Analytics</p>
         </div>
       </div>
-      {/* Conditionally render the appropriate component based on the active button */}
+
       {activeButton === 'Overview' && <Overview />}
+      {activeButton === 'Members' && <Member />}
     </Layout>
   );
 }
+
