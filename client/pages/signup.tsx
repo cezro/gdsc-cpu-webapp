@@ -36,6 +36,7 @@ function SignUp() {
 
       const data = await response.json();
       console.log(data);
+      window.location.href = "/landing";
     } catch (error) {
       console.error('Error during signup:', error);
     }

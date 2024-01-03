@@ -11,6 +11,11 @@ export default function AdminMerch() {
     <Layout>
       <div className="container">
         <InputMerch />
+        <div className='mt-8'>
+          <h1 className="text-black text-3xl underline underline-offset-4">
+            Preview & Edit GDSC Merch
+          </h1>
+        </div>
         <ListMerch />
       </div>
     </Layout>
