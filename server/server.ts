@@ -78,12 +78,21 @@ async function serverStart() {
 
   app.get('/admin/admin-home', async (request, response) => {
     try {
-      const allMerch = await pool.query('SELECT * FROM users');
-      response.json(allMerch.rows);
+      const allMember = await pool.query('SELECT * FROM users');
+      response.json(allMember.rows);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  });
+  })
+  .delete('/admin/admin-home/:id', async (request, response) => {
+    try {
+      const { id } = await request.params
+      const deleteMember = await pool.query('DELETE FROM users WHERE id = $1', [id])
+      response.json({ message: 'Member was removed!'})
+    } catch(err) {
+      console.error(getErrorMessage(err))
+    }
+   })
 
   // admin-merch methods
 
