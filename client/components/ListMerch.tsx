@@ -48,7 +48,7 @@ const ListMerch = () => {
         <tr>
           <th className="px-4 py-2">Merch Name</th>
           <th className="px-4 py-2">Description</th>
-          {/* <th className="px-4 py-2">Image</th> */}
+          <th className="px-4 py-2">Image</th>
           <th className="px-4 py-2">Price</th>
           <th className="px-4 py-2">Edit</th>
           <th className="px-4 py-2">Delete</th>
@@ -59,7 +59,9 @@ const ListMerch = () => {
           <tr key={merch.id}>
             <td className="border px-4 py-2">{merch.name}</td>
             <td className="border px-4 py-2">{merch.description}</td>
-            {/* <td className="border px-4 py-2">{merch.image}</td> */}
+            <td className="border px-4 py-2">
+              <img src={`http://localhost:3001/${merch.image}`} alt={merch.name} />
+            </td>
             <td className="border px-4 py-2">P {merch.price}</td>
             <td>
               <EditMerch merch={merch} />
