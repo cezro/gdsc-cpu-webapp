@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
+import Overview from '../../components/Overview';
 
 export default function AdminHome() {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -28,10 +29,10 @@ export default function AdminHome() {
 
   return (
     <Layout>
-      <div className="my-7">
+      <div className="my-7 mx-7">
         <h1 className="text-stone-900 text-5xl">Dashboard</h1>
       </div>
-      <div className="flex flex-row bg-slate-500 h-14 w-80 text-center justify-center items-center rounded-md space-x-3">
+      <div className="flex flex-row bg-slate-500 h-14 w-80 text-center justify-center items-center rounded-md mx-7 space-x-3">
         <div
           className={`w-24 h-8 cursor-pointer flex items-center justify-center rounded-md ${
             activeButton === 'Overview' || hoveredButton === 'Overview'
@@ -45,16 +46,16 @@ export default function AdminHome() {
           <p className="text-slate-300 hover:text-white">Overview</p>
         </div>
         <div
-          className={`w-16 h-8 cursor-pointer flex items-center justify-center rounded-md ${
-            activeButton === 'Users' || hoveredButton === 'Users'
+          className={`w-24 h-8 cursor-pointer flex items-center justify-center rounded-md ${
+            activeButton === 'Members' || hoveredButton === 'Members'
               ? 'bg-gray-800'
               : ''
           }`}
-          onClick={() => handleButtonClick('Users')}
-          onMouseEnter={() => handleButtonHover('Users')}
+          onClick={() => handleButtonClick('Members')}
+          onMouseEnter={() => handleButtonHover('Members')}
           onMouseLeave={handleButtonLeave}
         >
-          <p className="text-slate-300 hover:text-white">Users</p>
+          <p className="text-slate-300 hover:text-white">Members</p>
         </div>
         <div
           className={`w-24 h-8 cursor-pointer flex items-center justify-center rounded-md ${
@@ -69,6 +70,8 @@ export default function AdminHome() {
           <p className="text-slate-300 hover:text-white">Analytics</p>
         </div>
       </div>
+      {/* Conditionally render the appropriate component based on the active button */}
+      {activeButton === 'Overview' && <Overview />}
     </Layout>
   );
 }
