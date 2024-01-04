@@ -16,6 +16,30 @@ async function serverStart() {
   const app = express();
   const connection = await pool.connect();
 
+  async function authenticateToken(request, response, next) {
+    const authHeader = request.header('Authorization');
+        const token = authHeader?.split(' ')[1];
+  
+        if (!token) {
+          response.status(401).json({ message: 'Not authenticated' });
+          return;
+        }
+        let userData;
+        try {
+          const claims = jwt.verify(token, String(process.env.TOKEN_SECRET)) as jwt.JwtPayload
+          const userId = claims.userId
+          const { rows } = await connection.query(
+            'SELECT id, email FROM users WHERE id = $1',
+            [userId]
+          );
+          userData = { me: rows[0] };
+          console.log(userData)
+          next()
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+  }
+
   app
     .use(
       cors({
@@ -72,46 +96,12 @@ async function serverStart() {
         }
       }
     });
-  const randomName = faker.person.fullName(); // Rowan Nikolaus
-  const randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
-
-  console.log(randomName, randomEmail);
-
-  app.get('/api/home', (request, response) => {
-    response.json({ message: 'Sent to console.' });
-  });
-
-  app.get('/db/test', (request, response) => {
-    response.json({ message: pool });
-  });
 
   // admin-home methods
 
   app
-    .get('/admin/admin-home', async (request, response) => {
-      const authHeader = request.header('Authorization');
-      const token = authHeader?.split('')[1];
-
-      if (!token) {
-        response.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
-      let userData;
-      let allMembers;
-
-      try {
-        const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
-        const userId = claims as any;
-        const { rows } = await connection.query(
-          'SELECT id, email FROM users WHERE id = $1',
-          [userId]
-        );
-        userData = { me: rows[0] };
-      } catch (err) {
-        console.error(getErrorMessage(err));
-      }
-
+    .get('/admin/admin-home', authenticateToken, async (request, response) => {
+     let allMembers;
       try {
         const { rows: memberRows } = await connection.query(
           'SELECT * FROM users'
@@ -119,12 +109,14 @@ async function serverStart() {
         allMembers = memberRows;
       } catch (err) {
         console.error(getErrorMessage(err));
+        response.status(500).json({message: 'An error occurred while fetching members'})
+        return
       }
 
       console.log(allMembers);
-      response.json({ userData, allMembers });
+      response.json({ allMembers });
     })
-    .delete('/admin/admin-home/:id', async (request, response) => {
+    .delete('/admin/admin-home/:id', authenticateToken, async (request, response) => {
       try {
         const { id } = await request.params;
         const deleteMember = await pool.query(
@@ -182,7 +174,7 @@ async function serverStart() {
   );
 
   app.post(
-    '/admin/admin-merch',
+    '/admin/admin-merch', authenticateToken,
     upload.single('image'),
     async (request, response) => {
       try {
@@ -223,29 +215,8 @@ async function serverStart() {
   );
 
   // get all merch
-  app.get('/admin/admin-merch', async (request, response) => {
-    const authHeader = request.header('Authorization');
-    const token = authHeader?.split('')[1];
-
-    if (!token) {
-      return response.status(401).json({ message: 'Not authenticated' });
-    }
-
-    let userData;
+  app.get('/admin/admin-merch', authenticateToken, async (request, response) => {
     let allMerches;
-
-    try {
-      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
-      const userId = claims as any;
-      const { rows } = await connection.query(
-        'SELECT id, email FROM users WHERE id = $1',
-        [userId]
-      );
-      userData = { me: rows[0] };
-    } catch (err) {
-      console.error(getErrorMessage(err));
-    }
-
     try {
       const { rows: merchRows } = await connection.query('SELECT * FROM merch');
       allMerches = merchRows;
@@ -257,7 +228,7 @@ async function serverStart() {
   });
 
   // get one merch
-  app.get('/admin/admin-merch/:id', async (request, response) => {
+  app.get('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
     try {
       const { id } = request.params;
       const merch = await pool.query('SELECT * FROM merch WHERE id = $1', [id]);
@@ -269,7 +240,7 @@ async function serverStart() {
   });
 
   // update a merch
-  app.put('/admin/admin-merch/:id', async (request, response) => {
+  app.put('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
     try {
       const { id } = request.params;
       const { name, description, price } = request.body;
@@ -285,7 +256,7 @@ async function serverStart() {
   });
 
   // delete a merch
-  app.delete('/admin/admin-merch/:id', async (request, response) => {
+  app.delete('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
     try {
       const { id } = request.params;
       const deleteMerch = await pool.query('DELETE FROM merch WHERE id = $1', [
@@ -302,30 +273,7 @@ async function serverStart() {
 
   // admin-events methods
 
-  app.get('/admin/admin-events', async (request, response) => {
-    const authHeader = request.header('Authorization');
-    const token = authHeader?.split('')[1];
-
-    if (!token) {
-      response.status(401).json({ message: 'Not authenticated' });
-      return;
-    }
-
-    let userData;
-    let allEvents;
-
-    try {
-      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
-      const userId = claims as any;
-      const { rows } = await connection.query(
-        'SELECT id, email FROM users WHERE id = $1',
-        [userId]
-      );
-      userData = ({ me: rows[0] });
-    } catch (err) {
-      console.error(getErrorMessage(err));
-    }
-
+  app.get('/admin/admin-events', authenticateToken, async (request, response) => {
     response.json({ message: 'Events will be up shortly'});
   });
 

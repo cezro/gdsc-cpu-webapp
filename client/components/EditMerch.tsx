@@ -15,7 +15,7 @@ const EditMerch = ({ merch }: any) => {
       const body = { name, description, image, price};
       await fetch(`http://localhost:3001/admin/admin-merch/${merch.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
         body: JSON.stringify(body),
       });
 

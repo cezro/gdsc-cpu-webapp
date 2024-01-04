@@ -18,11 +18,15 @@ export default function Member() {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const jsonData = await response.json();
 
       setMembers(jsonData.allMembers);
     } catch (err) {
       console.error(getErrorMessage(err));
+      setMembers([])
     }
   };
 
@@ -32,6 +36,9 @@ export default function Member() {
         `http://localhost:3001/admin/admin-home/${id}`,
         {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
         }
       );
 
