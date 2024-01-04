@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { getErrorMessage } from "@/utils/utilFunctions";
-import CustomHeader from "@/components/CustomHeader";
-import CustomContainer from "@/components/ui/customContainer";
-import MerchList from "@/components/MerchList";
+import React, { Fragment, useEffect, useState } from 'react';
+import { getErrorMessage } from '@/utils/utilFunctions';
+import CustomHeader from '@/components/CustomHeader';
+import CustomContainer from '@/components/ui/customContainer';
+import MerchList from '@/components/MerchList';
 
 type Merch = {
   id: number;
@@ -14,13 +14,13 @@ type Merch = {
 
 function Merch() {
   const [merches, setMerches] = useState<Merch[]>([]);
-  merches.forEach((merch) => alert(merch));
+  // merches.forEach((merch) => alert(merch));
   const getAllMerches = async () => {
     try {
       const response = await fetch('http://localhost:3001/admin/admin-merch');
       const jsonData = await response.json();
 
-      setMerches(jsonData);
+      setMerches(jsonData.allMerches);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
@@ -42,7 +42,6 @@ function Merch() {
             <MerchList items={merches} />
           </div>
         </div>
-
       </CustomContainer>
 
       {/* <h1>Store</h1>
