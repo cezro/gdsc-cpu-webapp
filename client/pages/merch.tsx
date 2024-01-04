@@ -1,8 +1,6 @@
-import React, { Fragment, useEffect, useState } from "react";
-import StoreItem from "../components/StoreItem"
-import { getErrorMessage } from "@/utils/utilFunctions";
-import CustomHeader from "@/components/CustomHeader";
-import { Button } from "@/components/ui/button";
+import React, { Fragment, useEffect, useState } from 'react';
+import { getErrorMessage } from '@/utils/utilFunctions';
+import CustomHeader from '@/components/CustomHeader';
 
 type Merch = {
   id: number;
@@ -14,21 +12,24 @@ type Merch = {
 
 function Merch() {
   const [merches, setMerches] = useState<Merch[]>([]);
-
+  merches.forEach((merch) => alert(merch));
   const getAllMerches = async () => {
     try {
-      const response = await fetch("http://localhost:3001/admin/admin-merch");
+      const response = await fetch('http://localhost:3001/admin/admin-merch');
       const jsonData = await response.json();
 
       setMerches(jsonData);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  }
+  };
 
-  useEffect(() => {
-    getAllMerches();
-  }, [] /* bracket ensures useEffect does not repeatedly request multiple times */);
+  useEffect(
+    () => {
+      getAllMerches();
+    },
+    [] /* bracket ensures useEffect does not repeatedly request multiple times */
+  );
 
   return (
     <Fragment>
@@ -44,7 +45,7 @@ function Merch() {
         ))}
       </Row> */}
     </Fragment>
-  )
+  );
 }
 
 export default Merch;
