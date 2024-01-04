@@ -139,7 +139,7 @@ async function serverStart() {
 
   // admin-merch methods
 
-  // upload merch image
+    // post a merch
   const merchImageDir = './uploads/merch-image';
 
   if (!fs.existsSync(merchImageDir)) {
@@ -257,10 +257,10 @@ async function serverStart() {
   app.put('/admin/admin-merch/:id', async (request, response) => {
     try {
       const { id } = request.params;
-      const { name, description, image, price } = request.body;
+      const { name, description, price } = request.body;
       const updateMerch = await pool.query(
-        'UPDATE merch SET name = $1, description = $2, image = $3, price = $4 WHERE id = $5',
-        [name, description, image, price, id]
+        "UPDATE merch SET name = $1, description = $2, price = $3 WHERE id = $4",
+        [name, description, price, id]
       );
 
       response.json('Merch was uploaded!');
