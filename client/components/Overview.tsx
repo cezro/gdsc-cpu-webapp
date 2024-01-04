@@ -12,10 +12,14 @@ export default function Overview() {
 
   const getMembers = async () => {
     try {
-      const response = await fetch('http://localhost:3001/admin/admin-home')
+      const response = await fetch('http://localhost:3001/admin/admin-home', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      })
       const jsonData = await response.json()
 
-      setMembers(jsonData)
+      setMembers(jsonData.allMembers)
     } catch(err) {
       console.error(getErrorMessage(err))
     }

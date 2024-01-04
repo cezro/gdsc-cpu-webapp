@@ -28,6 +28,13 @@ async function serverStart() {
     .use(bodyParser.urlencoded({ extended: true }))
     .post('/signup', async (request, response) => {
       const { fname, lname, email, password } = request.body;
+      const { rows: existingRows } = await connection.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+      if (existingRows.length > 0) {
+        return response.status(400).json({ error: 'Email already in use' });
+      }
       const hashedPassword = await bcrypt.hash(password, 10);
       const { rows } = await connection.query(
         'INSERT INTO users(fname, lname, email, password) VALUES ($1, $2, $3, $4) RETURNING id, email',
@@ -54,8 +61,8 @@ async function serverStart() {
         if (correctPassword) {
           const token = jwt.sign(
             { userId: rows[0].id, email: rows[0].email },
-            'secret',
-            { expiresIn: '10m' }
+            String(process.env.TOKEN_SECRET),
+            { expiresIn: '1h' }
           );
           response.json({ token });
         } else {
@@ -80,31 +87,63 @@ async function serverStart() {
 
   // admin-home methods
 
-  app.get('/admin/admin-home', async (request, response) => {
-    try {
-      const allMember = await pool.query('SELECT * FROM users');
-      response.json(allMember.rows);
-    } catch (err) {
-      console.error(getErrorMessage(err));
-    }
-  })
-  .delete('/admin/admin-home/:id', async (request, response) => {
-    try {
-      const { id } = await request.params
-      const deleteMember = await pool.query('DELETE FROM users WHERE id = $1', [id])
-      response.json({ message: 'Member was removed!'})
-    } catch(err) {
-      console.error(getErrorMessage(err))
-    }
-   })
+  app
+    .get('/admin/admin-home', async (request, response) => {
+      const authHeader = request.header('Authorization');
+      const token = authHeader?.split('')[1];
+
+      if (!token) {
+        response.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
+
+      let userData;
+      let allMembers;
+
+      try {
+        const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+        const userId = claims as any;
+        const { rows } = await connection.query(
+          'SELECT id, email FROM users WHERE id = $1',
+          [userId]
+        );
+        userData = { me: rows[0] };
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
+
+      try {
+        const { rows: memberRows } = await connection.query(
+          'SELECT * FROM users'
+        );
+        allMembers = memberRows;
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
+
+      console.log(allMembers);
+      response.json({ userData, allMembers });
+    })
+    .delete('/admin/admin-home/:id', async (request, response) => {
+      try {
+        const { id } = await request.params;
+        const deleteMember = await pool.query(
+          'DELETE FROM users WHERE id = $1',
+          [id]
+        );
+        response.json({ message: 'Member was removed!' });
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
+    });
 
   // admin-merch methods
 
     // post a merch
   const merchImageDir = './uploads/merch-image';
 
-  if (!fs.existsSync(merchImageDir)){
-      fs.mkdirSync(merchImageDir, { recursive: true });
+  if (!fs.existsSync(merchImageDir)) {
+    fs.mkdirSync(merchImageDir, { recursive: true });
   }
 
   const storage = multer.diskStorage({
@@ -113,48 +152,108 @@ async function serverStart() {
     },
     filename: (request, file, callback) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      callback(null, file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]);;
+      callback(
+        null,
+        file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]
+      );
     },
   });
 
-  const upload = multer({ storage: storage });
+  const upload = multer({ 
+    storage: storage,
+    fileFilter: (request, file, callback) => {
+      const filetypes = /jpeg|jpg|png|gif/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-  app.use('/uploads/merch-image', express.static(path.join('uploads', 'merch-image')));
-
-  app.post('/admin/admin-merch', upload.single('image') , async (request, response) => {
-    try {
-      if (!request.file) {
-        return response.status(400).json({ error: 'No image provided' });
+      if (mimetype && extname) {
+        return callback(null, true);
       }
-  
-      // Save the file path in the database
-      const filePath = path.join('uploads', 'merch-image', request.file.filename);
-      const { name, description, price } = request.body;
-
-      const query = 'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
-      const values = [name, description, filePath, price];
-
-      const newMerch = await pool.query(query, values);
-
-      // response.json(newMerch.rows[0]);
-      return response.status(200).json({ success: true, data: newMerch.rows[0] });
-
-    } catch (err) {
-      // console.error(getErrorMessage(err));
-      console.error('Error uploading image', err);
-      return response.status(500).json({ error: 'Internal Server Error' });
+      callback(new Error('Error: Images Only!'));
+    },
+    limits: {
+      fileSize: 1024 * 1024 / 2,
     }
   });
 
+  app.use(
+    '/uploads/merch-image',
+    express.static(path.join('uploads', 'merch-image'))
+  );
+
+  app.post(
+    '/admin/admin-merch',
+    upload.single('image'),
+    async (request, response) => {
+      try {
+        if (!request.file) {
+          return response.status(400).json({ error: 'No image provided' });
+        }
+
+        // // Resize the image
+        // const resizedImagePath = path.join('uploads', 'merch-image', 'resized', request.file.filename);
+        // await sharp(request.file.path)
+        //   .resize(500, 500) // width, height
+        //   .toFile(resizedImagePath);
+
+        // Save the file path in the database
+        const filePath = path.join(
+          'uploads',
+          'merch-image',
+          request.file.filename
+        );
+        const { name, description, price } = request.body;
+
+        const query =
+          'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, description, filePath, price];
+
+        const newMerch = await pool.query(query, values);
+
+        // response.json(newMerch.rows[0]);
+        return response
+          .status(200)
+          .json({ success: true, data: newMerch.rows[0] });
+      } catch (err) {
+        // console.error(getErrorMessage(err));
+        console.error('Error uploading image', err);
+        return response.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  );
+
   // get all merch
   app.get('/admin/admin-merch', async (request, response) => {
-    try {
-      const allMerch = await pool.query('SELECT * FROM merch');
+    const authHeader = request.header('Authorization');
+    const token = authHeader?.split('')[1];
 
-      response.json(allMerch.rows);
+    if (!token) {
+      return response.status(401).json({ message: 'Not authenticated' });
+    }
+
+    let userData;
+    let allMerches;
+
+    try {
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+      const userId = claims as any;
+      const { rows } = await connection.query(
+        'SELECT id, email FROM users WHERE id = $1',
+        [userId]
+      );
+      userData = { me: rows[0] };
     } catch (err) {
       console.error(getErrorMessage(err));
     }
+
+    try {
+      const { rows: merchRows } = await connection.query('SELECT * FROM merch');
+      allMerches = merchRows;
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+
+    response.json({ allMerches });
   });
 
   // get one merch
@@ -203,8 +302,31 @@ async function serverStart() {
 
   // admin-events methods
 
-  app.get('/admin/admin-events', (request, response) => {
-    response.json({ message: 'This is the admin events panel' });
+  app.get('/admin/admin-events', async (request, response) => {
+    const authHeader = request.header('Authorization');
+    const token = authHeader?.split('')[1];
+
+    if (!token) {
+      response.status(401).json({ message: 'Not authenticated' });
+      return;
+    }
+
+    let userData;
+    let allEvents;
+
+    try {
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+      const userId = claims as any;
+      const { rows } = await connection.query(
+        'SELECT id, email FROM users WHERE id = $1',
+        [userId]
+      );
+      userData = ({ me: rows[0] });
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+
+    response.json({ message: 'Events will be up shortly'});
   });
 
   app.listen(PORT, () => {
