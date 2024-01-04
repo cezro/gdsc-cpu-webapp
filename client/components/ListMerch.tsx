@@ -1,6 +1,6 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { getErrorMessage } from "../utils/utilFunctions";
-import EditMerch from "./EditMerch";
+import React, { Fragment, useEffect, useState } from 'react';
+import { getErrorMessage } from '../utils/utilFunctions';
+import EditMerch from './EditMerch';
 
 type Merch = {
   id: number;
@@ -16,69 +16,82 @@ const ListMerch = () => {
   //delete merch function
   const deleteMerch = async (id: number) => {
     try {
-      const deleteMerch = await fetch(`http://localhost:3001/admin/admin-merch/${id}`, {
-        method: "DELETE"
-      });
+      const deleteMerch = await fetch(
+        `http://localhost:3001/admin/admin-merch/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
-      setMerches(merches.filter(merch => merch.id !== id));
+      setMerches(merches.filter((merch) => merch.id !== id));
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  }
+  };
 
   const getAllMerches = async () => {
     try {
-      const response = await fetch("http://localhost:3001/admin/admin-merch");
+      const response = await fetch('http://localhost:3001/admin/admin-merch', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       const jsonData = await response.json();
 
-      setMerches(jsonData);
+      setMerches(jsonData.allMerches);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  }
+  };
 
-  useEffect(() => {
-    getAllMerches();
-  }, [] /* bracket ensures useEffect does not repeatedly request multiple times */);
+  useEffect(
+    () => {
+      getAllMerches();
+    },
+    [] /* bracket ensures useEffect does not repeatedly request multiple times */
+  );
 
   return (
-  <Fragment>
-    <table className="table-auto mt-4 text-center text-black">
-      <thead>
-        <tr>
-          <th className="px-4 py-2">Merch Name</th>
-          <th className="px-4 py-2">Description</th>
-          <th className="px-4 py-2">Image</th>
-          <th className="px-4 py-2">Price</th>
-          <th className="px-4 py-2">Edit</th>
-          <th className="px-4 py-2">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        {merches.map(merch => (
-          <tr key={merch.id}>
-            <td className="border px-4 py-2">{merch.name}</td>
-            <td className="border px-4 py-2">{merch.description}</td>
-            <td className="border px-4 py-2">
-              <img src={`http://localhost:3001/${merch.image}`} alt={merch.name} />
-            </td>
-            <td className="border px-4 py-2">P {merch.price}</td>
-            <td>
-              <EditMerch merch={merch} />
-            </td>
-            <td>
-              <button 
-                className="h-10 w-20 bg-red-600 border rounded-md hover:bg-blue-800" 
-                onClick={() => deleteMerch(merch.id)}
-              >
-                Delete
-              </button>
-            </td>
+    <Fragment>
+      <table className="table-auto mt-4 text-center text-black">
+        <thead>
+          <tr>
+            <th className="px-4 py-2">Merch Name</th>
+            <th className="px-4 py-2">Description</th>
+            <th className="px-4 py-2">Image</th>
+            <th className="px-4 py-2">Price</th>
+            <th className="px-4 py-2">Edit</th>
+            <th className="px-4 py-2">Delete</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </Fragment>
+        </thead>
+        <tbody>
+          {merches.map((merch) => (
+            <tr key={merch.id}>
+              <td className="border px-4 py-2">{merch.name}</td>
+              <td className="border px-4 py-2">{merch.description}</td>
+              <td className="border px-4 py-2">
+                <img
+                  src={`http://localhost:3001/${merch.image}`}
+                  alt={merch.name}
+                />
+              </td>
+              <td className="border px-4 py-2">P {merch.price}</td>
+              <td>
+                <EditMerch merch={merch} />
+              </td>
+              <td>
+                <button
+                  className="h-10 w-20 bg-red-600 border rounded-md hover:bg-blue-800"
+                  onClick={() => deleteMerch(merch.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Fragment>
   );
 };
 
