@@ -33,7 +33,7 @@ const ListMerch = () => {
     try {
       const response = await fetch('http://localhost:3001/admin/admin-merch', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const jsonData = await response.json();
