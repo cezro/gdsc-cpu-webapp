@@ -1,6 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { getErrorMessage } from "@/utils/utilFunctions";
 import CustomHeader from "@/components/CustomHeader";
+import CustomContainer from "@/components/ui/customContainer";
+import MerchList from "@/components/MerchList";
 
 type Merch = {
   id: number;
@@ -30,9 +32,15 @@ function Merch() {
 
   return (
     <Fragment>
-      <div>
-        <CustomHeader />
-      </div>
+      <CustomHeader />
+      <CustomContainer>
+        <div className="space-y-10 pb-10">
+          <div className="flex flex-col gap-y-8 px-4 sm:px-6 lg:px-8">
+            <MerchList items={merches} />
+          </div>
+        </div>
+
+      </CustomContainer>
 
       {/* <h1>Store</h1>
       <Row md={2} xs={1} lg={3} className="g-3">
