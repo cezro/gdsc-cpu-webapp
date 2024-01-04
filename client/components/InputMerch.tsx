@@ -1,41 +1,46 @@
-import React, { Fragment, useState, ChangeEvent } from "react";
-import { getErrorMessage } from "../utils/utilFunctions";
-
+import React, { Fragment, useState, ChangeEvent } from 'react';
+import { getErrorMessage } from '../utils/utilFunctions';
 
 const InputMerch = () => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [image, setImage] = useState<File | null>(null);
-  const [price, setPrice] = useState<number | string>("");
+  const [price, setPrice] = useState<number | string>('');
 
-  const onSubmitForm = async (event: { preventDefault: () => void; }) => {
+  const onSubmitForm = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
-  
+
     if (!image) {
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('description', description);
     formData.append('image', image);
     formData.append('price', price.toString());
-  
-    try {  
-      const formUpload = await fetch("http://localhost:3001/admin/admin-merch", {
-        method: "POST",
-        body: formData
-      });
+
+    try {
+      const formUpload = await fetch(
+        'http://localhost:3001/admin/admin-merch',
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
 
       const formUploadResponse = await formUpload.json();
       console.log('Form uploaded successfully', formUploadResponse);
-  
-      window.location.href = "/admin/admin-merch";
+
+      window.location.href = '/admin/admin-merch';
     } catch (err) {
       console.error('Error uploading image', err);
       console.error(getErrorMessage(err));
     }
-  }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,7 +49,7 @@ const InputMerch = () => {
 
   return (
     <Fragment>
-      <form className="d-flex mt-5" onSubmit={ onSubmitForm }>
+      <form className="d-flex mt-5" onSubmit={onSubmitForm}>
         <div className="my-4">
           <h1 className="text-black text-3xl underline underline-offset-4">
             Create GDSC merch
@@ -58,7 +63,7 @@ const InputMerch = () => {
               className="text-black h-8 w-64 border border-stone-900"
               placeholder="Name"
               value={name}
-              onChange={event => setName(event.target.value)}
+              onChange={(event) => setName(event.target.value)}
             />
           </div>
           <div>
@@ -70,7 +75,7 @@ const InputMerch = () => {
               className="text-black h-24 w-1/2 border border-stone-900"
               placeholder="Description"
               value={description}
-              onChange={event => setDescription(event.target.value)} 
+              onChange={(event) => setDescription(event.target.value)}
             />
           </div>
           <div>
@@ -90,13 +95,11 @@ const InputMerch = () => {
               className="text-black h-8 w-64 border border-stone-900"
               placeholder="Price"
               value={price}
-              onChange={event => setPrice(Number(event.target.value))} 
+              onChange={(event) => setPrice(Number(event.target.value))}
             />
           </div>
           <div>
-            <button 
-              className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800"
-            >
+            <button className="h-10 w-40 bg-blue-600 border rounded-md hover:bg-blue-800">
               Add Merch
             </button>
           </div>

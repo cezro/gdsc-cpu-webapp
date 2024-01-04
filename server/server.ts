@@ -62,7 +62,7 @@ async function serverStart() {
           const token = jwt.sign(
             { userId: rows[0].id, email: rows[0].email },
             String(process.env.TOKEN_SECRET),
-            { expiresIn: '10m' }
+            { expiresIn: '1h' }
           );
           response.json({ token });
         } else {
@@ -209,13 +209,36 @@ async function serverStart() {
 
   // get all merch
   app.get('/admin/admin-merch', async (request, response) => {
-    try {
-      const allMerch = await pool.query('SELECT * FROM merch');
+    const authHeader = request.header('Authorization');
+    const token = authHeader?.split('')[1];
 
-      response.json(allMerch.rows);
+    if (!token) {
+      return response.status(401).json({ message: 'Not authenticated' });
+    }
+
+    let userData;
+    let allMerches;
+
+    try {
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+      const userId = claims as any;
+      const { rows } = await connection.query(
+        'SELECT id, email FROM users WHERE id = $1',
+        [userId]
+      );
+      userData = { me: rows[0] };
     } catch (err) {
       console.error(getErrorMessage(err));
     }
+
+    try {
+      const { rows: merchRows } = await connection.query('SELECT * FROM merch');
+      allMerches = merchRows;
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+
+    response.json({ userData, allMerches });
   });
 
   // get one merch
