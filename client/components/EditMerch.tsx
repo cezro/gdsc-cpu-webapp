@@ -83,14 +83,20 @@ const EditMerch = ({ merch }: any) => {
             </label>
           </div>
           <div>
-            <label className="text-black text-lg font-semibold mb-1">
+            {/* <label className="text-black text-lg font-semibold mb-1">
               Image:
               <input 
                 type="file" 
                 className='text-black h-8 w-64 border border-stone-900'
-                onChange={(e) => setImage(e.target.files?.[0] || null)} 
+                onChange={(e) => {
+                  if (e === null) {
+                    setImage(image);
+                  } else {
+                    setImage(e.target.files?.[0] || null);
+                  }
+                }}
               />
-            </label>
+            </label> */}
           </div>
           <div>
             <label className="text-black text-lg font-semibold mb-1">
