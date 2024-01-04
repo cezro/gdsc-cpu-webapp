@@ -40,6 +40,43 @@ async function serverStart() {
         }
   }
 
+  // post a merch
+  const merchImageDir = './uploads/merch-image';
+
+  if (!fs.existsSync(merchImageDir)) {
+    fs.mkdirSync(merchImageDir, { recursive: true });
+  }
+
+  const storage = multer.diskStorage({
+    destination: (request, file, callback) => {
+      callback(null, merchImageDir);
+    },
+    filename: (request, file, callback) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      callback(
+        null,
+        file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]
+      );
+    },
+  });
+
+  const upload = multer({ 
+    storage: storage,
+    fileFilter: (request, file, callback) => {
+      const filetypes = /jpeg|jpg|png|gif/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return callback(null, true);
+      }
+      callback(new Error('Error: Images Only!'));
+    },
+    limits: {
+      fileSize: 1024 * 1024 / 2,
+    }
+  });
+
   app
     .use(
       cors({
@@ -95,12 +132,8 @@ async function serverStart() {
             .json({ message: 'Your Email or Password is incorrect' });
         }
       }
-    });
-
-  // admin-home methods
-
-  app
-    .get('/admin/admin-home', authenticateToken, async (request, response) => {
+    })
+    .get('/admin/admin-home', authenticateToken, async (request, response) => {  // admin-home methods
      let allMembers;
       try {
         const { rows: memberRows } = await connection.query(
@@ -127,53 +160,12 @@ async function serverStart() {
       } catch (err) {
         console.error(getErrorMessage(err));
       }
-    });
-
-  // admin-merch methods
-
-    // post a merch
-  const merchImageDir = './uploads/merch-image';
-
-  if (!fs.existsSync(merchImageDir)) {
-    fs.mkdirSync(merchImageDir, { recursive: true });
-  }
-
-  const storage = multer.diskStorage({
-    destination: (request, file, callback) => {
-      callback(null, merchImageDir);
-    },
-    filename: (request, file, callback) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      callback(
-        null,
-        file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]
-      );
-    },
-  });
-
-  const upload = multer({ 
-    storage: storage,
-    fileFilter: (request, file, callback) => {
-      const filetypes = /jpeg|jpg|png|gif/;
-      const mimetype = filetypes.test(file.mimetype);
-      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-
-      if (mimetype && extname) {
-        return callback(null, true);
-      }
-      callback(new Error('Error: Images Only!'));
-    },
-    limits: {
-      fileSize: 1024 * 1024 / 2,
-    }
-  });
-
-  app.use(
+    })
+    .use(  // admin-merch methods
     '/uploads/merch-image',
     express.static(path.join('uploads', 'merch-image'))
-  );
-
-  app.post(
+    )
+    .post(
     '/admin/admin-merch', authenticateToken,
     upload.single('image'),
     async (request, response) => {
@@ -212,10 +204,8 @@ async function serverStart() {
         return response.status(500).json({ error: 'Internal Server Error' });
       }
     }
-  );
-
-  // get all merch
-  app.get('/admin/admin-merch', authenticateToken, async (request, response) => {
+  )
+  .get('/admin/admin-merch', authenticateToken, async (request, response) => {  // get all merch
     let allMerches;
     try {
       const { rows: merchRows } = await connection.query('SELECT * FROM merch');
@@ -225,10 +215,8 @@ async function serverStart() {
     }
 
     response.json({ allMerches });
-  });
-
-  // get one merch
-  app.get('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
+  })
+  .get('/admin/admin-merch/:id', authenticateToken, async (request, response) => {  // get one merch
     try {
       const { id } = request.params;
       const merch = await pool.query('SELECT * FROM merch WHERE id = $1', [id]);
@@ -237,10 +225,8 @@ async function serverStart() {
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  });
-
-  // update a merch
-  app.put('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
+  })
+  .put('/admin/admin-merch/:id', authenticateToken, async (request, response) => {  // update a merch
     try {
       const { id } = request.params;
       const { name, description, price } = request.body;
@@ -253,10 +239,8 @@ async function serverStart() {
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  });
-
-  // delete a merch
-  app.delete('/admin/admin-merch/:id', authenticateToken, async (request, response) => {
+  })
+  .delete('/admin/admin-merch/:id', authenticateToken, async (request, response) => {  // delete a merch
     try {
       const { id } = request.params;
       const deleteMerch = await pool.query('DELETE FROM merch WHERE id = $1', [
@@ -267,17 +251,11 @@ async function serverStart() {
     } catch (err) {
       console.error(getErrorMessage(err));
     }
-  });
-
-  // client-side merch methods
-
-  // admin-events methods
-
-  app.get('/admin/admin-events', authenticateToken, async (request, response) => {
+  })
+  .get('/admin/admin-events', authenticateToken, async (request, response) => {
     response.json({ message: 'Events will be up shortly'});
-  });
-
-  app.listen(PORT, () => {
+  })
+  .listen(PORT, () => {
     console.log('Server started on', PORT);
   });
 }
