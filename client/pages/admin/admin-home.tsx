@@ -8,10 +8,15 @@ export default function AdminHome() {
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/admin/admin-home')
+    fetch('http://localhost:3001/admin/admin-home', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
+        console.log(data.userData);
+        console.log(data.allMembers)
       });
   }, []);
 

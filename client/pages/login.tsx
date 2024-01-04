@@ -1,6 +1,7 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
+
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -24,6 +25,11 @@ function Login() {
 
       const data = await response.json()
       console.log(data)
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token)
+        window.location.href = '/admin/admin-home';
+      }
     } catch (error) {
       console.error('Error while login', error)
     }
@@ -34,7 +40,7 @@ function Login() {
   }
   
   return (
-    <form action="/landing-page" method="post" onSubmit={handleSubmit}>
+    <form method="post" onSubmit={handleSubmit}>
       <div className="w-full bg-[#07063d] flex items-center justify-center min-h-screen">
         <div className="w-full lg:w-1/2 p-8 ">
           <div className="justify-center flex items-center">

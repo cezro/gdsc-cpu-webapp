@@ -28,6 +28,13 @@ async function serverStart() {
     .use(bodyParser.urlencoded({ extended: true }))
     .post('/signup', async (request, response) => {
       const { fname, lname, email, password } = request.body;
+      const { rows: existingRows } = await connection.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+      if (existingRows.length > 0) {
+        return response.status(400).json({ error: 'Email already in use' });
+      }
       const hashedPassword = await bcrypt.hash(password, 10);
       const { rows } = await connection.query(
         'INSERT INTO users(fname, lname, email, password) VALUES ($1, $2, $3, $4) RETURNING id, email',
@@ -54,7 +61,7 @@ async function serverStart() {
         if (correctPassword) {
           const token = jwt.sign(
             { userId: rows[0].id, email: rows[0].email },
-            'secret',
+            String(process.env.TOKEN_SECRET),
             { expiresIn: '10m' }
           );
           response.json({ token });
@@ -81,12 +88,35 @@ async function serverStart() {
   // admin-home methods
 
   app.get('/admin/admin-home', async (request, response) => {
+    const authHeader = request.header('Authorization')
+    const token = authHeader?.split('')[1]
+
+    if (!token) {
+      response.status(401).json({ message: 'Not authenticated'})
+      return
+    }
+
+    let userData;
+    let allMembers;
+
+    try{
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
+      const userId = claims as any
+      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
+      userData = { me: rows[0]}
+
+    } catch(err) {
+      console.error(getErrorMessage(err))
+    }
+
     try {
       const allMember = await pool.query('SELECT * FROM users');
-      response.json(allMember.rows);
+      allMembers = allMember.rows;
     } catch (err) {
       console.error(getErrorMessage(err));
     }
+
+    response.json({ userData, allMembers})
   })
   .delete('/admin/admin-home/:id', async (request, response) => {
     try {
@@ -154,6 +184,24 @@ async function serverStart() {
 
   // get all merch
   app.get('/admin/admin-merch', async (request, response) => {
+    const authHeader = request.header('Authorization')
+    const token = authHeader?.split('')[1]
+
+    if (!token) {
+      response.status(401).json({ message: 'Not authenticated'})
+      return
+    }
+
+    try{
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
+      const userId = claims as any
+      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
+      response.json({ me: rows[0]})
+
+    } catch(err) {
+      console.error(getErrorMessage(err))
+    }
+
     try {
       const allMerch = await pool.query('SELECT * FROM merch');
 
@@ -209,7 +257,25 @@ async function serverStart() {
 
   // admin-events methods
 
-  app.get('/admin/admin-events', (request, response) => {
+  app.get('/admin/admin-events', async (request, response) => {
+    const authHeader = request.header('Authorization')
+    const token = authHeader?.split('')[1]
+
+    if (!token) {
+      response.status(401).json({ message: 'Not authenticated'})
+      return
+    }
+
+    try{
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
+      const userId = claims as any
+      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
+      response.json({ me: rows[0]})
+
+    } catch(err) {
+      console.error(getErrorMessage(err))
+    }
+
     response.json({ message: 'This is the admin events panel' });
   });
 
