@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { Merch } from "@/types";
+// import host from "@/utils/host";
 
 interface MerchCard {
   data: Merch;
