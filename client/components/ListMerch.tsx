@@ -20,6 +20,9 @@ const ListMerch = () => {
         `http://localhost:3001/admin/admin-merch/${id}`,
         {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
         }
       );
 

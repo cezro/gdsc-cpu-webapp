@@ -36,6 +36,9 @@ export default function Member() {
         `http://localhost:3001/admin/admin-home/${id}`,
         {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
         }
       );
 
