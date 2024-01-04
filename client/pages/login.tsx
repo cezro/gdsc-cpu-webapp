@@ -1,6 +1,6 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
-
+import host from '@/utils/host';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,33 +12,33 @@ function Login() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3001/login', {
+      const response = await fetch(`${host}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
 
-      const data = await response.json()
-      console.log(data)
+      const data = await response.json();
+      console.log(data);
 
       if (response.ok) {
-        localStorage.setItem('token', data.token)
+        localStorage.setItem('token', data.token);
         window.location.href = '/admin/admin-home';
       }
     } catch (error) {
-      console.error('Error while login', error)
+      console.error('Error while login', error);
     }
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFormData({... formData, [event.target.name]: event.target.value})
-  }
-  
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
+
   return (
     <form method="post" onSubmit={handleSubmit}>
       <div className="w-full bg-[#07063d] flex items-center justify-center min-h-screen">
@@ -88,13 +88,13 @@ function Login() {
             <text className="text-xs">Forgot password?</text>
           </div>
           <div>
-            <button 
+            <button
               type="button"
               className="h-8 w-full max-lg:z-20 border-2 border-gray-400 hover:border-gray-200 rounded-sm"
               onClick={(e) => {
                 e.preventDefault();
-                window.location.href='http://localhost:3000/signup';
-                }}
+                window.location.href = '/signup';
+              }}
             >
               <text className="text-white justify-center flex items-center text-xs">
                 No account yet? Sign Up

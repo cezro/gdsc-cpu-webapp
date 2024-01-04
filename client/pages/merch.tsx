@@ -3,6 +3,7 @@ import { getErrorMessage } from '@/utils/utilFunctions';
 import CustomHeader from '@/components/CustomHeader';
 import CustomContainer from '@/components/ui/customContainer';
 import MerchList from '@/components/MerchList';
+import host from '@/utils/host';
 
 type Merch = {
   id: number;
@@ -17,7 +18,11 @@ function Merch() {
   // merches.forEach((merch) => alert(merch));
   const getAllMerches = async () => {
     try {
-      const response = await fetch('http://localhost:3001/admin/admin-merch');
+      const response = await fetch(`${host}/admin/admin-merch`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       const jsonData = await response.json();
 
       setMerches(jsonData.allMerches);

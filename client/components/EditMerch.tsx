@@ -1,6 +1,9 @@
-import React, { Fragment, useState } from "react";
-import { getErrorMessage } from "@/utils/utilFunctions";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { Fragment, useState } from 'react';
+import { getErrorMessage } from '@/utils/utilFunctions';
 import Modal from 'react-modal';
+import host from '@/utils/host';
 
 const EditMerch = ({ merch }: any) => {
   const [name, setName] = useState<string>(merch.name);
@@ -12,16 +15,19 @@ const EditMerch = ({ merch }: any) => {
   const updateMerch = async (e: any) => {
     e.preventDefault();
     try {
-      const body = { name, description, image, price};
-      await fetch(`http://localhost:3001/admin/admin-merch/${merch.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
+      const body = { name, description, image, price };
+      await fetch(`${host}/admin/admin-merch/${merch.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         body: JSON.stringify(body),
       });
 
       // Close the modal and refresh the page
       handleCloseModal();
-      window.location.href = "/admin/admin-merch";
+      window.location.href = '/admin/admin-merch';
     } catch (err) {
       console.error(getErrorMessage(err));
     }
@@ -58,27 +64,31 @@ const EditMerch = ({ merch }: any) => {
         Edit
       </button>
 
-      <Modal isOpen={isModalOpen} onRequestClose={handleCloseModal} style={customStyles}>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        style={customStyles}
+      >
         <div>
           <div>
             <label className="text-black text-lg font-semibold mb-1">
-            Name:
-              <input 
-                type="text" 
-                className='text-black h-8 w-64 border border-stone-900'
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
+              Name:
+              <input
+                type="text"
+                className="text-black h-8 w-64 border border-stone-900"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
-            </label >
+            </label>
           </div>
           <div>
             <label className="text-black text-lg font-semibold mb-1">
-            Description:
-              <input 
-                type="text" 
-                className='text-black h-8 w-64 border border-stone-900'
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)} 
+              Description:
+              <input
+                type="text"
+                className="text-black h-8 w-64 border border-stone-900"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </label>
           </div>
@@ -101,18 +111,21 @@ const EditMerch = ({ merch }: any) => {
           <div>
             <label className="text-black text-lg font-semibold mb-1">
               Price:
-              <input 
-                type="text" 
-                className='text-black h-8 w-64 border border-stone-900'
-                value={price} 
-                onChange={(e) => setPrice(e.target.value)} 
+              <input
+                type="text"
+                className="text-black h-8 w-64 border border-stone-900"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </label>
           </div>
-          <button 
+          <button
             type="button"
             className="h-10 w-20 bg-yellow-400 border rounded-md hover:bg-blue-800"
-            onClick={updateMerch}>Save</button>
+            onClick={updateMerch}
+          >
+            Save
+          </button>
         </div>
       </Modal>
     </Fragment>
