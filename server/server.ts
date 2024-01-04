@@ -87,54 +87,63 @@ async function serverStart() {
 
   // admin-home methods
 
-  app.get('/admin/admin-home', async (request, response) => {
-    const authHeader = request.header('Authorization')
-    const token = authHeader?.split('')[1]
+  app
+    .get('/admin/admin-home', async (request, response) => {
+      const authHeader = request.header('Authorization');
+      const token = authHeader?.split('')[1];
 
-    if (!token) {
-      response.status(401).json({ message: 'Not authenticated'})
-      return
-    }
+      if (!token) {
+        response.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
 
-    let userData;
-    let allMembers;
+      let userData;
+      let allMembers;
 
-    try{
-      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
-      const userId = claims as any
-      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
-      userData = { me: rows[0]}
+      try {
+        const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+        const userId = claims as any;
+        const { rows } = await connection.query(
+          'SELECT id, email FROM users WHERE id = $1',
+          [userId]
+        );
+        userData = { me: rows[0] };
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
 
-    } catch(err) {
-      console.error(getErrorMessage(err))
-    }
+      try {
+        const { rows: memberRows } = await connection.query(
+          'SELECT * FROM users'
+        );
+        allMembers = memberRows;
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
 
-    try {
-      const allMember = await pool.query('SELECT * FROM users');
-      allMembers = allMember.rows;
-    } catch (err) {
-      console.error(getErrorMessage(err));
-    }
-
-    response.json({ userData, allMembers})
-  })
-  .delete('/admin/admin-home/:id', async (request, response) => {
-    try {
-      const { id } = await request.params
-      const deleteMember = await pool.query('DELETE FROM users WHERE id = $1', [id])
-      response.json({ message: 'Member was removed!'})
-    } catch(err) {
-      console.error(getErrorMessage(err))
-    }
-   })
+      console.log(allMembers);
+      response.json({ userData, allMembers });
+    })
+    .delete('/admin/admin-home/:id', async (request, response) => {
+      try {
+        const { id } = await request.params;
+        const deleteMember = await pool.query(
+          'DELETE FROM users WHERE id = $1',
+          [id]
+        );
+        response.json({ message: 'Member was removed!' });
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
+    });
 
   // admin-merch methods
 
-    // upload merch image
+  // upload merch image
   const merchImageDir = './uploads/merch-image';
 
-  if (!fs.existsSync(merchImageDir)){
-      fs.mkdirSync(merchImageDir, { recursive: true });
+  if (!fs.existsSync(merchImageDir)) {
+    fs.mkdirSync(merchImageDir, { recursive: true });
   }
 
   const storage = multer.diskStorage({
@@ -143,65 +152,63 @@ async function serverStart() {
     },
     filename: (request, file, callback) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      callback(null, file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]);;
+      callback(
+        null,
+        file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]
+      );
     },
   });
 
   const upload = multer({ storage: storage });
 
-  app.use('/uploads/merch-image', express.static(path.join('uploads', 'merch-image')));
+  app.use(
+    '/uploads/merch-image',
+    express.static(path.join('uploads', 'merch-image'))
+  );
 
-  app.post('/admin/admin-merch', upload.single('image') , async (request, response) => {
-    try {
-      if (!request.file) {
-        return response.status(400).json({ error: 'No image provided' });
+  app.post(
+    '/admin/admin-merch',
+    upload.single('image'),
+    async (request, response) => {
+      try {
+        if (!request.file) {
+          return response.status(400).json({ error: 'No image provided' });
+        }
+
+        // // Resize the image
+        // const resizedImagePath = path.join('uploads', 'merch-image', 'resized', request.file.filename);
+        // await sharp(request.file.path)
+        //   .resize(500, 500) // width, height
+        //   .toFile(resizedImagePath);
+
+        // Save the file path in the database
+        const filePath = path.join(
+          'uploads',
+          'merch-image',
+          request.file.filename
+        );
+        const { name, description, price } = request.body;
+
+        const query =
+          'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, description, filePath, price];
+
+        const newMerch = await pool.query(query, values);
+
+        // response.json(newMerch.rows[0]);
+        return response
+          .status(200)
+          .json({ success: true, data: newMerch.rows[0] });
+      } catch (err) {
+        // console.error(getErrorMessage(err));
+        console.error('Error uploading image', err);
+        return response.status(500).json({ error: 'Internal Server Error' });
       }
-
-      // // Resize the image
-      // const resizedImagePath = path.join('uploads', 'merch-image', 'resized', request.file.filename);
-      // await sharp(request.file.path)
-      //   .resize(500, 500) // width, height
-      //   .toFile(resizedImagePath);
-  
-      // Save the file path in the database
-      const filePath = path.join('uploads', 'merch-image', request.file.filename);
-      const { name, description, price } = request.body;
-
-      const query = 'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
-      const values = [name, description, filePath, price];
-
-      const newMerch = await pool.query(query, values);
-
-      // response.json(newMerch.rows[0]);
-      return response.status(200).json({ success: true, data: newMerch.rows[0] });
-
-    } catch (err) {
-      // console.error(getErrorMessage(err));
-      console.error('Error uploading image', err);
-      return response.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+  );
 
   // get all merch
   app.get('/admin/admin-merch', async (request, response) => {
-    const authHeader = request.header('Authorization')
-    const token = authHeader?.split('')[1]
-
-    if (!token) {
-      response.status(401).json({ message: 'Not authenticated'})
-      return
-    }
-
-    try{
-      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
-      const userId = claims as any
-      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
-      response.json({ me: rows[0]})
-
-    } catch(err) {
-      console.error(getErrorMessage(err))
-    }
-
     try {
       const allMerch = await pool.query('SELECT * FROM merch');
 
@@ -258,22 +265,24 @@ async function serverStart() {
   // admin-events methods
 
   app.get('/admin/admin-events', async (request, response) => {
-    const authHeader = request.header('Authorization')
-    const token = authHeader?.split('')[1]
+    const authHeader = request.header('Authorization');
+    const token = authHeader?.split('')[1];
 
     if (!token) {
-      response.status(401).json({ message: 'Not authenticated'})
-      return
+      response.status(401).json({ message: 'Not authenticated' });
+      return;
     }
 
-    try{
-      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET))
-      const userId = claims as any
-      const { rows } = await connection.query('SELECT id, email FROM users WHERE id = $1', [userId])
-      response.json({ me: rows[0]})
-
-    } catch(err) {
-      console.error(getErrorMessage(err))
+    try {
+      const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
+      const userId = claims as any;
+      const { rows } = await connection.query(
+        'SELECT id, email FROM users WHERE id = $1',
+        [userId]
+      );
+      response.json({ me: rows[0] });
+    } catch (err) {
+      console.error(getErrorMessage(err));
     }
 
     response.json({ message: 'This is the admin events panel' });
