@@ -7,7 +7,7 @@ export const eventSchema = z.object({
   time: z
     .string()
     .regex(/^\d{2}:\d{2}:\d{2}$/)
-    .refine((timeString) => {
+    .refine((timeString: string) => {
       const [hour, minute, second] = timeString.split(':').map(Number);
       return (
         hour >= 0 &&
