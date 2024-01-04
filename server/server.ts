@@ -238,7 +238,7 @@ async function serverStart() {
       console.error(getErrorMessage(err));
     }
 
-    response.json({ userData, allMerches });
+    response.json({ allMerches });
   });
 
   // get one merch
@@ -296,6 +296,9 @@ async function serverStart() {
       return;
     }
 
+    let userData;
+    let allEvents;
+
     try {
       const claims = jwt.verify(token, String(process.env.TOKEN_SECRET));
       const userId = claims as any;
@@ -303,12 +306,12 @@ async function serverStart() {
         'SELECT id, email FROM users WHERE id = $1',
         [userId]
       );
-      response.json({ me: rows[0] });
+      userData = ({ me: rows[0] });
     } catch (err) {
       console.error(getErrorMessage(err));
     }
 
-    response.json({ message: 'This is the admin events panel' });
+    response.json({ message: 'Events will be up shortly'});
   });
 
   app.listen(PORT, () => {
