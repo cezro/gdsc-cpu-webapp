@@ -1,6 +1,7 @@
-import React, { Fragment, useState, ChangeEvent } from 'react';
+/* eslint-disable react/no-unknown-property */
+import React, { Fragment, useState } from 'react';
 import { getErrorMessage } from '../utils/utilFunctions';
-
+import host from '@/utils/host';
 
 const InputMerch = () => {
   const [name, setName] = useState('');
@@ -22,16 +23,13 @@ const InputMerch = () => {
     formData.append('price', price.toString());
 
     try {
-      const formUpload = await fetch(
-        'http://localhost:3001/admin/admin-merch',
-        {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
+      const formUpload = await fetch(`${host}/admin/admin-merch`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
       const formUploadResponse = await formUpload.json();
       console.log('Form uploaded successfully', formUploadResponse);

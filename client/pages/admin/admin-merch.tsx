@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React from 'react';
 import Layout from '../../components/Layout';
 
 //components
@@ -11,7 +11,7 @@ export default function AdminMerch() {
     <Layout>
       <div className="container">
         <InputMerch />
-        <div className='mt-8'>
+        <div className="mt-8">
           <h1 className="text-black text-3xl underline underline-offset-4">
             Preview & Edit GDSC Merch
           </h1>

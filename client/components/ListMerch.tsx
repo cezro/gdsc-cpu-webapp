@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { Fragment, useEffect, useState } from 'react';
 import { getErrorMessage } from '../utils/utilFunctions';
 import EditMerch from './EditMerch';
+import host from '@/utils/host';
 
 type Merch = {
   id: number;
@@ -16,15 +18,12 @@ const ListMerch = () => {
   //delete merch function
   const deleteMerch = async (id: number) => {
     try {
-      const deleteMerch = await fetch(
-        `http://localhost:3001/admin/admin-merch/${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const deleteMerch = await fetch(`${host}/admin/admin-merch/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
       setMerches(merches.filter((merch) => merch.id !== id));
     } catch (err) {
@@ -34,9 +33,9 @@ const ListMerch = () => {
 
   const getAllMerches = async () => {
     try {
-      const response = await fetch('http://localhost:3001/admin/admin-merch', {
+      const response = await fetch(`${host}/admin/admin-merch`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const jsonData = await response.json();
@@ -73,10 +72,7 @@ const ListMerch = () => {
               <td className="border px-4 py-2">{merch.name}</td>
               <td className="border px-4 py-2">{merch.description}</td>
               <td className="border px-4 py-2">
-                <img
-                  src={`http://localhost:3001/${merch.image}`}
-                  alt={merch.name}
-                />
+                <img src={`${host}/${merch.image}`} alt={merch.name} />
               </td>
               <td className="border px-4 py-2">P {merch.price}</td>
               <td>

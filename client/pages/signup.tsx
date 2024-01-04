@@ -1,5 +1,6 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
+import host from '@/utils/host';
 
 export interface FormData {
   fname: string;
@@ -20,7 +21,7 @@ function SignUp() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3001/signup', {
+      const response = await fetch(`${host}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +37,7 @@ function SignUp() {
 
       const data = await response.json();
       console.log(data);
-      window.location.href = "/landing";
+      window.location.href = '/landing';
     } catch (error) {
       console.error('Error during signup:', error);
     }
