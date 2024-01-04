@@ -1,8 +1,6 @@
 import React, { Fragment, useEffect, useState } from "react";
-import StoreItem from "../components/StoreItem"
 import { getErrorMessage } from "@/utils/utilFunctions";
 import CustomHeader from "@/components/CustomHeader";
-import { Button } from "@/components/ui/button";
 
 type Merch = {
   id: number;
@@ -35,6 +33,7 @@ function Merch() {
       <div>
         <CustomHeader />
       </div>
+
       {/* <h1>Store</h1>
       <Row md={2} xs={1} lg={3} className="g-3">
         {merches.map(merch => (
