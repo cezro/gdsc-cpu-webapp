@@ -117,7 +117,22 @@ async function serverStart() {
     },
   });
 
-  const upload = multer({ storage: storage });
+  const upload = multer({ 
+    storage: storage,
+    fileFilter: (request, file, callback) => {
+      const filetypes = /jpeg|jpg|png|gif/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return callback(null, true);
+      }
+      callback(new Error('Error: Images Only!'));
+    },
+    limits: {
+      fileSize: 1024 * 1024 / 2,
+    }
+  });
 
   app.use('/uploads/merch-image', express.static(path.join('uploads', 'merch-image')));
 
