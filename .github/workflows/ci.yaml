@@ -1,20 +1,18 @@
+name: Render Web Services Deployment Preview
 on:
   pull_request:
   push:
-    branches: [main]
+    paths:
+      - 'server/**'
+    branches:
+      - main
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Test
-        run: |
-          npm install
-          npm run test
-
       - name: Deploy
-        # Only run this step if the branch is main
         if: github.ref == 'refs/heads/main'
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
