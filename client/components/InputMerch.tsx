@@ -2,6 +2,8 @@
 import React, { Fragment, useState } from 'react';
 import { getErrorMessage } from '../utils/utilFunctions';
 import host from '@/utils/host';
+import { merchSchema } from '@/schemas/merch';
+import { z } from 'zod';
 
 const InputMerch = () => {
   const [name, setName] = useState('');
@@ -16,28 +18,47 @@ const InputMerch = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('image', image);
-    formData.append('price', price.toString());
+    let isValid = false;
 
     try {
-      const formUpload = await fetch(`${host}/admin/admin-merch`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+      merchSchema.parse({
+        name,
+        description,
+        price,
+        image,
       });
+      isValid = true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation failed:', error.errors);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+    }
+    if (isValid) {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('image', image);
+      formData.append('price', price.toString());
 
-      const formUploadResponse = await formUpload.json();
-      console.log('Form uploaded successfully', formUploadResponse);
+      try {
+        const formUpload = await fetch(`${host}/admin/admin-merch`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-      window.location.href = '/admin/admin-merch';
-    } catch (err) {
-      console.error('Error uploading image', err);
-      console.error(getErrorMessage(err));
+        const formUploadResponse = await formUpload.json();
+        console.log('Form uploaded successfully', formUploadResponse);
+
+        window.location.href = '/admin/admin-merch';
+      } catch (err) {
+        console.error('Error uploading image', err);
+        console.error(getErrorMessage(err));
+      }
     }
   };
 

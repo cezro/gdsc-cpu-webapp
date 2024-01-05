@@ -2,15 +2,16 @@
 import React, { Fragment, useState } from 'react';
 import { getErrorMessage } from '../utils/utilFunctions';
 import host from '@/utils/host';
+import { eventSchema } from '@/schemas/events';
+import { z } from 'zod';
 
 const InputMerch = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('')
-  const [time, setTime] = useState('')
-  const [location, setLocation] = useState('')
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [location, setLocation] = useState('');
   const [image, setImage] = useState<File | null>(null);
-
 
   const onSubmitForm = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
@@ -19,30 +20,52 @@ const InputMerch = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('date', date)
-    formData.append('time', time)
-    formData.append('location', location)
-    formData.append('image', image);
+    let isValid = false;
 
     try {
-      const formUpload = await fetch(`${host}/admin/admin-events`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+      eventSchema.parse({
+        name,
+        description,
+        date,
+        time,
+        location,
+        image,
       });
+      isValid = true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation failed:', error.errors);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+    }
 
-      const formUploadResponse = await formUpload.json();
-      console.log('Form uploaded successfully', formUploadResponse);
+    if (isValid) {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('date', date);
+      formData.append('time', time);
+      formData.append('location', location);
+      formData.append('image', image);
 
-      window.location.href = '/admin/admin-events';
-    } catch (err) {
-      console.error('Error uploading image', err);
-      console.error(getErrorMessage(err));
+      try {
+        const formUpload = await fetch(`${host}/admin/admin-events`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        const formUploadResponse = await formUpload.json();
+        console.log('Form uploaded successfully', formUploadResponse);
+
+        window.location.href = '/admin/admin-events';
+      } catch (err) {
+        console.error('Error uploading image', err);
+        console.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -89,7 +112,7 @@ const InputMerch = () => {
               className="text-black h-8 w-64 border border-stone-900"
               placeholder="Date"
               value={date}
-              onChange={(event) => setDate((event.target.value))}
+              onChange={(event) => setDate(event.target.value)}
             />
           </div>
           <div>
@@ -99,17 +122,19 @@ const InputMerch = () => {
               className="text-black h-8 w-64 border border-stone-900"
               placeholder="Time"
               value={time}
-              onChange={(event) => setTime((event.target.value))}
+              onChange={(event) => setTime(event.target.value)}
             />
           </div>
           <div>
-            <p className="text-black text-lg font-semibold mb-1">Event Location</p>
+            <p className="text-black text-lg font-semibold mb-1">
+              Event Location
+            </p>
             <input
               type="text"
               className="text-black h-8 w-64 border border-stone-900"
               placeholder="Location"
               value={location}
-              onChange={(event) => setLocation((event.target.value))}
+              onChange={(event) => setLocation(event.target.value)}
             />
           </div>
           <div>
