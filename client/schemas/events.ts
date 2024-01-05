@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
 export const eventSchema = z.object({
-  name: z.string().min(1, { message: 'Missing Event Name' }),
-  description: z.string().min(1, { message: 'Missing Description' }),
+  name: z
+    .string()
+    .min(1, { message: 'Missing Event Name' })
+    .max(255, 'Reached Character Limit'),
+  description: z
+    .string()
+    .min(1, { message: 'Missing Description' })
+    .max(255, 'Reached Character Limit'),
   date: z.date(),
   time: z
     .string()
@@ -18,5 +24,9 @@ export const eventSchema = z.object({
         second <= 59
       );
     }, 'Invalid time format. Please use HH:MM:SS format and ensure valid time values.'),
-  location: z.string().min(1, { message: 'Missing Location' }),
+  location: z
+    .string()
+    .min(1, { message: 'Missing Location' })
+    .max(255, 'Reached Character Limit'),
+  image: z.string().min(1, { message: 'Image not found' }),
 });
