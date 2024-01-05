@@ -278,11 +278,11 @@ async function serverStart() {
             'events-image',
             request.file.filename
           );
-          const { name, description, price } = request.body;
+          const { name, description, date, time, location } = request.body;
 
           const query =
-            'INSERT INTO events (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
-          const values = [name, description, filePath, price];
+            'INSERT INTO events (name, description, image, date, time, location) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+          const values = [name, description, filePath, date, time, location];
 
           const newEvent = await pool.query(query, values);
 
