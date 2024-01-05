@@ -4,6 +4,7 @@ import CustomHeader from '@/components/CustomHeader';
 import CustomContainer from '@/components/ui/customContainer';
 import MerchList from '@/components/MerchList';
 import host from '@/utils/host';
+import Link from 'next/link';
 
 type Merch = {
   id: number;
@@ -43,6 +44,11 @@ function Merch() {
       <CustomHeader />
       <CustomContainer>
         <div className="space-y-10 pb-10">
+          <div>
+            <Link href="/landing" className="ml-4 lg:ml-0">
+              <h1 className="text-center text-xl font-bold">GDSC Merch</h1>
+            </Link>
+          </div>
           <div className="flex flex-col gap-y-8 px-4 sm:px-6 lg:px-8">
             <MerchList items={merches} />
           </div>
