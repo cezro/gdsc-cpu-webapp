@@ -54,15 +54,6 @@ function Merch() {
           </div>
         </div>
       </CustomContainer>
-
-      {/* <h1>Store</h1>
-      <Row md={2} xs={1} lg={3} className="g-3">
-        {merches.map(merch => (
-          <Col key={merch.id}>
-            <StoreItem {...merch} />
-          </Col>
-        ))}
-      </Row> */}
     </Fragment>
   );
 }
