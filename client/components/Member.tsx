@@ -32,7 +32,7 @@ export default function Member() {
 
   const removeMember = async (id: number) => {
     try {
-      const deleteMember = await fetch(
+      const response = await fetch(
         `http://localhost:3001/admin/admin-home/${id}`,
         {
           method: 'DELETE',
