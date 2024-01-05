@@ -409,7 +409,7 @@ async function serverStart() {
       }
     )
     .get(
-      '/admin/admin-event/:id',
+      '/admin/admin-events/:id',
       authenticateToken,
       async (request, response) => {
         // get one event
@@ -426,7 +426,7 @@ async function serverStart() {
       }
     )
     .put(
-      '/admin/admin-event/:id',
+      '/admin/admin-events/:id',
       authenticateToken,
       async (request, response) => {
         // update an event
@@ -434,7 +434,7 @@ async function serverStart() {
           const { id } = request.params;
           const { name, description, date, time, location } = request.body;
           const updateEvent = await pool.query(
-            'UPDATE events SET name = $1, description = $2, date = $3, time = $4, location $5 WHERE id = $6',
+            'UPDATE events SET name = $1, description = $2, date = $3, time = $4, location = $5 WHERE id = $6',
             [name, description, date, time, location, id]
           );
 
@@ -445,7 +445,7 @@ async function serverStart() {
       }
     )
     .delete(
-      '/admin/admin-event/:id',
+      '/admin/admin-events/:id',
       authenticateToken,
       async (request, response) => {
         // delete an event

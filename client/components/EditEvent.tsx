@@ -5,18 +5,19 @@ import { getErrorMessage } from '@/utils/utilFunctions';
 import Modal from 'react-modal';
 import host from '@/utils/host';
 
-const EditMerch = ({ merch }: any) => {
-  const [name, setName] = useState<string>(merch.name);
-  const [description, setDescription] = useState<string>(merch.description);
-  const [image, setImage] = useState<File | null>(null);
-  const [price, setPrice] = useState<number | string>(merch.price);
+const EditEvent = ({ event }: any) => {
+  const [name, setName] = useState<string>(event.name);
+  const [description, setDescription] = useState<string>(event.description);
+  const [date, setDate] = useState<string>(event.date)
+  const [time, setTime] = useState<string>(event.time)
+  const [location, setLocation] = useState<string>(event.location)
 
-  // Edit merch function
-  const updateMerch = async (e: any) => {
+ 
+  const updateEvent = async (e: any) => {
     e.preventDefault();
     try {
-      const body = { name, description, image, price };
-      await fetch(`${host}/admin/admin-merch/${merch.id}`, {
+      const body = { name, description, date, time, location };
+      await fetch(`${host}/admin/admin-events/${event.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +28,7 @@ const EditMerch = ({ merch }: any) => {
 
       // Close the modal and refresh the page
       handleCloseModal();
-      window.location.href = '/admin/admin-merch';
+      window.location.href = '/admin/admin-events';
     } catch (err) {
       console.error(getErrorMessage(err));
     }
@@ -93,36 +94,42 @@ const EditMerch = ({ merch }: any) => {
             </label>
           </div>
           <div>
-            {/* <label className="text-black text-lg font-semibold mb-1">
-              Image:
-              <input 
-                type="file" 
-                className='text-black h-8 w-64 border border-stone-900'
-                onChange={(e) => {
-                  if (e === null) {
-                    setImage(image);
-                  } else {
-                    setImage(e.target.files?.[0] || null);
-                  }
-                }}
-              />
-            </label> */}
-          </div>
-          <div>
             <label className="text-black text-lg font-semibold mb-1">
-              Price:
+              Date:
               <input
                 type="text"
                 className="text-black h-8 w-64 border border-stone-900"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </label>
+          </div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+              Description:
+              <input
+                type="text"
+                className="text-black h-8 w-64 border border-stone-900"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+              />
+            </label>
+          </div>
+          <div>
+            <label className="text-black text-lg font-semibold mb-1">
+              Location:
+              <input
+                type="text"
+                className="text-black h-8 w-64 border border-stone-900"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
               />
             </label>
           </div>
           <button
             type="button"
             className="h-10 w-20 bg-yellow-400 border rounded-md hover:bg-blue-800"
-            onClick={updateMerch}
+            onClick={updateEvent}
           >
             Save
           </button>
@@ -132,4 +139,4 @@ const EditMerch = ({ merch }: any) => {
   );
 };
 
-export default EditMerch;
+export default EditEvent;
