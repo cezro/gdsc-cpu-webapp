@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import { getErrorMessage } from './src/functions/getErrorMessage';
 import defineStorage from './src/functions/defineStorage';
+import upload from './src/functions/upload';
 const PORT = 3001;
 
 async function serverStart() {
@@ -58,25 +59,6 @@ async function serverStart() {
 
   const merchImageStorage = defineStorage(merchImageDir);
   const eventsImageStorage = defineStorage(eventsImageDir);
-
-  const upload = multer({
-    storage: merchImageStorage,
-    fileFilter: (request, file, callback) => {
-      const filetypes = /jpeg|jpg|png|gif/;
-      const mimetype = filetypes.test(file.mimetype);
-      const extname = filetypes.test(
-        path.extname(file.originalname).toLowerCase()
-      );
-
-      if (mimetype && extname) {
-        return callback(null, true);
-      }
-      callback(new Error('Error: Images Only!'));
-    },
-    limits: {
-      fileSize: 1024 * 1024,
-    },
-  });
 
   app
     .use(
@@ -177,7 +159,7 @@ async function serverStart() {
     .post(
       '/admin/admin-merch',
       authenticateToken,
-      upload.single('image'),
+      upload(merchImageStorage).single('image'),
       async (request, response) => {
         try {
           if (!request.file) {
@@ -284,7 +266,7 @@ async function serverStart() {
     .post(
       '/admin/admin-events',
       authenticateToken,
-      upload.single('image'),
+      upload(eventsImageStorage).single('image'),
       async (request, response) => {
         try {
           if (!request.file) {
@@ -357,10 +339,10 @@ async function serverStart() {
         // update an event
         try {
           const { id } = request.params;
-          const { name, description, price } = request.body;
+          const { name, description, date, time, location } = request.body;
           const updateEvent = await pool.query(
-            'UPDATE events SET name = $1, description = $2, price = $3 WHERE id = $4',
-            [name, description, price, id]
+            'UPDATE events SET name = $1, description = $2, date = $3, time = $4, location $5 WHERE id = $6',
+            [name, description, date, time, location, id]
           );
 
           response.json('Event was uploaded!');
