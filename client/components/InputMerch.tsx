@@ -79,6 +79,7 @@ const InputMerch = () => {
           </div>
           <div>
             <p className="text-black text-lg font-semibold mb-1">Merch Photo</p>
+            <p className="text-black text-sm mb-1">(Maximum 1 MB)</p>
             <input
               type="file"
               className="text-black"
