@@ -38,7 +38,6 @@ const PreOrderForm = ({ merch }: any) => {
       const userId = jsonData.userId;
 
       setUserID(userId);
-      console.log(`User ID: ${userId}`);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
