@@ -45,26 +45,39 @@ async function serverStart() {
 
   // multer image upload
   const merchImageDir = './uploads/merch-image';
+  const eventsImageDir = './uploads/events-image';
 
   if (!fs.existsSync(merchImageDir)) {
     fs.mkdirSync(merchImageDir, { recursive: true });
   }
 
-  const storage = multer.diskStorage({
-    destination: (request, file, callback) => {
-      callback(null, merchImageDir);
-    },
-    filename: (request, file, callback) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      callback(
-        null,
-        file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1]
-      );
-    },
-  });
+  if (!fs.existsSync(eventsImageDir)) {
+    fs.mkdirSync(eventsImageDir, { recursive: true });
+  }
+
+  function defineStorage(directory: string) {
+    return multer.diskStorage({
+      destination: (request, file, callback) => {
+        callback(null, directory);
+      },
+      filename: (request, file, callback) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        callback(
+          null,
+          file.fieldname +
+            '-' +
+            uniqueSuffix +
+            '.' +
+            file.mimetype.split('/')[1]
+        );
+      },
+    });
+  }
+
+  const merchImageStorage = defineStorage(merchImageDir);
 
   const upload = multer({
-    storage: storage,
+    storage: merchImageStorage,
     fileFilter: (request, file, callback) => {
       const filetypes = /jpeg|jpg|png|gif/;
       const mimetype = filetypes.test(file.mimetype);
@@ -280,11 +293,115 @@ async function serverStart() {
         }
       }
     )
+    .use(
+      // admin-events methods
+      '/uploads/events-image',
+      express.static(path.join('uploads', 'events-image'))
+    )
+    .post(
+      '/admin/admin-events',
+      authenticateToken,
+      upload.single('image'),
+      async (request, response) => {
+        try {
+          if (!request.file) {
+            return response.status(400).json({ error: 'No image provided' });
+          }
+
+          const filePath = path.join(
+            'uploads',
+            'events-image',
+            request.file.filename
+          );
+          const { name, description, price } = request.body;
+
+          const query =
+            'INSERT INTO events (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
+          const values = [name, description, filePath, price];
+
+          const newEvent = await pool.query(query, values);
+
+          // response.json(newEvent.rows[0]);
+          return response
+            .status(200)
+            .json({ success: true, data: newEvent.rows[0] });
+        } catch (err) {
+          // console.error(getErrorMessage(err));
+          console.error('Error uploading image', err);
+          return response.status(500).json({ error: 'Internal Server Error' });
+        }
+      }
+    )
     .get(
       '/admin/admin-events',
       authenticateToken,
       async (request, response) => {
-        response.json({ message: 'Events will be up shortly' });
+        // get all events
+        let allEvents;
+        try {
+          const { rows: eventRows } = await connection.query(
+            'SELECT * FROM events'
+          );
+          allEvents = eventRows;
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+
+        response.json({ allEvents });
+      }
+    )
+    .get(
+      '/admin/admin-event/:id',
+      authenticateToken,
+      async (request, response) => {
+        // get one event
+        try {
+          const { id } = request.params;
+          const event = await pool.query('SELECT * FROM event WHERE id = $1', [
+            id,
+          ]);
+
+          response.json(event.rows[0]);
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+      }
+    )
+    .put(
+      '/admin/admin-event/:id',
+      authenticateToken,
+      async (request, response) => {
+        // update an event
+        try {
+          const { id } = request.params;
+          const { name, description, price } = request.body;
+          const updateEvent = await pool.query(
+            'UPDATE events SET name = $1, description = $2, price = $3 WHERE id = $4',
+            [name, description, price, id]
+          );
+
+          response.json('Event was uploaded!');
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+      }
+    )
+    .delete(
+      '/admin/admin-event/:id',
+      authenticateToken,
+      async (request, response) => {
+        // delete an event
+        try {
+          const { id } = request.params;
+          const deleteEvent = await pool.query(
+            'DELETE FROM events WHERE id = $1',
+            [id]
+          );
+
+          response.json('Merch was deleted!');
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
       }
     )
     .listen(PORT, () => {
