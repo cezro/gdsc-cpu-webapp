@@ -48,6 +48,7 @@ async function serverStart() {
   // multer image upload
   const merchImageDir = './uploads/merch-image';
   const eventsImageDir = './uploads/events-image';
+  const preOrderReceiptsDir = './uploads/pre-order-receipts';
 
   if (!fs.existsSync(merchImageDir)) {
     fs.mkdirSync(merchImageDir, { recursive: true });
@@ -57,8 +58,13 @@ async function serverStart() {
     fs.mkdirSync(eventsImageDir, { recursive: true });
   }
 
+  if (!fs.existsSync(preOrderReceiptsDir)) {
+    fs.mkdirSync(preOrderReceiptsDir, { recursive: true });
+  }
+
   const merchImageStorage = defineStorage(merchImageDir);
   const eventsImageStorage = defineStorage(eventsImageDir);
+  const preOrderReceiptsStorage = defineStorage(preOrderReceiptsDir);
 
   app
     .use(
@@ -253,6 +259,93 @@ async function serverStart() {
           );
 
           response.json('Merch was deleted!');
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+      }
+    ) // pre-order-form methods
+    .post(
+      '/pre-order-form',
+      authenticateToken,
+      upload(preOrderReceiptsStorage).single('image'),
+      async (request, response) => {
+        try {
+          if (!request.file) {
+            return response.status(400).json({ error: 'No image provided' });
+          }
+
+          const gcash_receipt = path.join(
+            'uploads',
+            'pre-order-receipts',
+            request.file.filename
+          );
+          const {
+            user_id,
+            shipping_province,
+            shipping_city,
+            shipping_street,
+            shipping_house_number,
+            merch_id,
+            merch_quantity,
+            date_time_submitted,
+          } = request.body;
+
+          const query = `INSERT INTO pre_order_forms 
+              (user_id, shipping_province, shipping_city, shipping_street, shipping_house_number, merch_id, gcash_receipt, merch_quantity, date_time_submitted) 
+              VALUES ($1, $2, $3, $4) 
+              RETURNING *`;
+          const values = [
+            user_id,
+            shipping_province,
+            shipping_city,
+            shipping_street,
+            shipping_house_number,
+            merch_id,
+            gcash_receipt,
+            merch_quantity,
+            date_time_submitted,
+          ];
+
+          const newMerch = await pool.query(query, values);
+
+          // response.json(newMerch.rows[0]);
+          return response
+            .status(200)
+            .json({ success: true, data: newMerch.rows[0] });
+        } catch (err) {
+          // console.error(getErrorMessage(err));
+          console.error('Error uploading image', err);
+          return response.status(500).json({ error: 'Internal Server Error' });
+        }
+      }
+    )
+    .get('/pre-order-form', authenticateToken, async (request, response) => {
+      // get all pre-orders
+      let allPreOrders;
+      try {
+        const { rows: preOrderRows } = await connection.query(
+          'SELECT * FROM pre_order_forms'
+        );
+        allPreOrders = preOrderRows;
+      } catch (err) {
+        console.error(getErrorMessage(err));
+      }
+
+      response.json({ allPreOrders });
+    })
+    .delete(
+      '/pre-order-form/:id',
+      authenticateToken,
+      async (request, response) => {
+        // delete a pre-order-form
+        try {
+          const { id } = request.params;
+          const deletePreOrderForm = await pool.query(
+            'DELETE FROM pre_order_forms WHERE id = $1',
+            [id]
+          );
+
+          response.json('Pre-Order Form was deleted!');
         } catch (err) {
           console.error(getErrorMessage(err));
         }
