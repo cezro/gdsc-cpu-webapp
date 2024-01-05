@@ -10,7 +10,7 @@ ALTER TABLE partners
 
 ALTER TABLE merch
 	ALTER COLUMN image TYPE VARCHAR(255);
-x
+
 -- migrate:down
 ALTER TABLE projects
 	DROP COLUMN image,
