@@ -10,6 +10,7 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { getErrorMessage } from './src/functions/getErrorMessage';
+import defineStorage from './src/functions/defineStorage';
 const PORT = 3001;
 
 async function serverStart() {
@@ -55,26 +56,8 @@ async function serverStart() {
     fs.mkdirSync(eventsImageDir, { recursive: true });
   }
 
-  function defineStorage(directory: string) {
-    return multer.diskStorage({
-      destination: (request, file, callback) => {
-        callback(null, directory);
-      },
-      filename: (request, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        callback(
-          null,
-          file.fieldname +
-            '-' +
-            uniqueSuffix +
-            '.' +
-            file.mimetype.split('/')[1]
-        );
-      },
-    });
-  }
-
   const merchImageStorage = defineStorage(merchImageDir);
+  const eventsImageStorage = defineStorage(eventsImageDir);
 
   const upload = multer({
     storage: merchImageStorage,
