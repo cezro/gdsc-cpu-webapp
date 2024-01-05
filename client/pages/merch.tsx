@@ -43,20 +43,14 @@ function Merch() {
       <CustomHeader />
       <CustomContainer>
         <div className="space-y-10 pb-10">
+          <div>
+            <h1 className="text-center text-xl font-bold">GDSC Merch</h1>
+          </div>
           <div className="flex flex-col gap-y-8 px-4 sm:px-6 lg:px-8">
             <MerchList items={merches} />
           </div>
         </div>
       </CustomContainer>
-
-      {/* <h1>Store</h1>
-      <Row md={2} xs={1} lg={3} className="g-3">
-        {merches.map(merch => (
-          <Col key={merch.id}>
-            <StoreItem {...merch} />
-          </Col>
-        ))}
-      </Row> */}
     </Fragment>
   );
 }
