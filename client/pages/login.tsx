@@ -1,6 +1,8 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import host from '@/utils/host';
+import { loginSchema } from '@/schemas/user';
+import { z } from 'zod';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -11,30 +13,50 @@ function Login() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
+    let isValid = false;
+
     try {
-      const response = await fetch(`${host}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+      const email = formData['email'];
+      const password = formData['password'];
+
+      loginSchema.parse({
+        email,
+        password,
       });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        window.location.href = '/admin/admin-home';
-      }
+      isValid = true;
     } catch (error) {
-      console.error('Error while login', error);
+      if (error instanceof z.ZodError) {
+        console.error('Validation failed:', error.errors);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+    }
+
+    if (isValid) {
+      try {
+        const response = await fetch(`${host}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/admin/admin-home';
+        }
+      } catch (error) {
+        console.error('Error while login', error);
+      }
     }
   };
-
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };

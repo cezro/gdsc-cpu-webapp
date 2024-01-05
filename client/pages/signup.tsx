@@ -1,6 +1,8 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import host from '@/utils/host';
+import { userSchema } from '@/schemas/user';
+import { z } from 'zod';
 
 export interface FormData {
   fname: string;
@@ -20,26 +22,50 @@ function SignUp() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    try {
-      const response = await fetch(`${host}/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          // Update the structure of the form data sent to the server
-          fname: formData.fname,
-          lname: formData.lname,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+    let isValid = false;
 
-      const data = await response.json();
-      console.log(data);
-      window.location.href = '/landing';
+    try {
+      const fname = formData['fname'];
+      const lname = formData['lname'];
+      const email = formData['email'];
+      const password = formData['password'];
+
+      userSchema.parse({
+        fname,
+        lname,
+        email,
+        password,
+      });
+      isValid = true;
     } catch (error) {
-      console.error('Error during signup:', error);
+      if (error instanceof z.ZodError) {
+        console.error('Validation failed:', error.errors);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+    }
+    if (isValid) {
+      try {
+        const response = await fetch(`${host}/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            // Update the structure of the form data sent to the server
+            fname: formData.fname,
+            lname: formData.lname,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        window.location.href = '/landing';
+      } catch (error) {
+        console.error('Error during signup:', error);
+      }
     }
   };
 

@@ -12,3 +12,8 @@ export const userSchema = z.object({
   email: z.string().min(1, { message: 'Missing Email' }).email('Invalid email'),
   password: z.string().min(1, { message: 'Missing Password' }),
 });
+
+export const loginSchema = z.object({
+  email: z.string().min(1, { message: 'Missing Email' }).email('Invalid email'),
+  password: z.string().min(1, { message: 'Missing Password' }),
+});
