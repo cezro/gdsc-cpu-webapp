@@ -43,7 +43,7 @@ async function serverStart() {
     }
   }
 
-  // post a merch
+  // multer image upload
   const merchImageDir = './uploads/merch-image';
 
   if (!fs.existsSync(merchImageDir)) {
@@ -78,7 +78,7 @@ async function serverStart() {
       callback(new Error('Error: Images Only!'));
     },
     limits: {
-      fileSize: (1024 * 1024) / 2,
+      fileSize: 1024 * 1024,
     },
   });
 
