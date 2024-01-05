@@ -1,10 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unknown-property */
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { getErrorMessage } from '../utils/utilFunctions';
 import host from '@/utils/host';
-import Modal from 'react-modal';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const PreOrderForm = ({ merch }: any) => {
   const merch_id = merch.id;
@@ -13,12 +23,34 @@ const PreOrderForm = ({ merch }: any) => {
   const [shipping_city, setShippingCity] = useState('');
   const [shipping_street, setShippingStreet] = useState('');
   const [shipping_house_number, setShippingHouseNumber] = useState('');
-  // const [merch_id, setMerchID] = useState<number | string>('');
-  const [image, setImage] = useState<File | null>(null);
+  // const [image, setImage] = useState<File | null>(null);
   const [merch_quantity, setMerchQuantity] = useState<number | string>('');
   const date_time_submitted = new Date();
 
-  const preOrderMerch = async (event: { preventDefault: () => void }) => {
+  const getAllPreOrders = async () => {
+    try {
+      const response = await fetch(`${host}/pre-order-form`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const jsonData = await response.json();
+      const userId = jsonData.userId;
+
+      setUserID(userId);
+    } catch (err) {
+      console.error(getErrorMessage(err));
+    }
+  };
+
+  useEffect(
+    () => {
+      getAllPreOrders();
+    },
+    [] /* bracket ensures useEffect does not repeatedly request multiple times */
+  );
+
+  const preOrderMerch = async (event: any) => {
     event.preventDefault();
 
     // if (!image) {
@@ -44,7 +76,7 @@ const PreOrderForm = ({ merch }: any) => {
         shipping_street,
         shipping_house_number,
         merch_id,
-        image,
+        // image,
         merch_quantity,
         date_time_submitted,
       };
@@ -57,132 +89,110 @@ const PreOrderForm = ({ merch }: any) => {
         body: JSON.stringify(body),
       });
       const jsonData = await preOrderUpload.json();
-      const userId = jsonData.userId;
+      // const userId = jsonData.userId;
 
-      setUserID(userId);
-      const formUploadResponse = await preOrderUpload.json();
-      console.log('Form uploaded successfully', formUploadResponse);
+      console.log('Form uploaded successfully', jsonData);
 
-      handleCloseModal();
-      window.location.href = '/merch';
+      // window.location.href = '/merch';
     } catch (err) {
       console.error('Error uploading image', err);
       console.error(getErrorMessage(err));
     }
   };
 
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   setImage(file || null);
+  // };
 
-  // Open modal
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  // Close modal
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const customStyles = {
-    content: {
-      width: '50%',
-      height: '50%',
-      margin: 'auto',
-    },
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setImage(file || null);
-  };
+  const [open, setOpen] = useState(false);
 
   return (
     <Fragment>
-      <Button className="w-full" onClick={handleOpenModal}>
-        Pre-Order
-      </Button>
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={handleCloseModal}
-        style={customStyles}
-      >
-        <div>
-          <div>Shipping Address:</div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              Province:
-              <input
-                type="text"
-                className="text-black h-8 w-64 border border-stone-900"
-                value={shipping_province}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full">Pre-Order</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Pre-Order Details</DialogTitle>
+            <DialogDescription>
+              Please provide the your Shipping Address and the additional
+              details to pre-order this item.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="shipping_province" className="text-right">
+                Province
+              </Label>
+              <Input
+                id="shipping_province"
+                className="col-span-3"
                 onChange={(e) => setShippingProvince(e.target.value)}
               />
-            </label>
-          </div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              City:
-              <input
-                type="text"
-                className="text-black h-8 w-64 border border-stone-900"
-                value={shipping_city}
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="shipping_City" className="text-right">
+                City
+              </Label>
+              <Input
+                id="shipping_City"
+                className="col-span-3"
                 onChange={(e) => setShippingCity(e.target.value)}
               />
-            </label>
-          </div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              Street:
-              <input
-                type="text"
-                className="text-black h-8 w-64 border border-stone-900"
-                value={shipping_street}
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="shipping_street" className="text-right">
+                Street
+              </Label>
+              <Input
+                id="shipping_street"
+                className="col-span-3"
                 onChange={(e) => setShippingStreet(e.target.value)}
               />
-            </label>
-          </div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              House Number:
-              <input
-                type="text"
-                className="text-black h-8 w-64 border border-stone-900"
-                value={shipping_house_number}
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="shipping_house_number" className="text-right">
+                House Number
+              </Label>
+              <Input
+                id="shipping_house_number"
+                className="col-span-3"
                 onChange={(e) => setShippingHouseNumber(e.target.value)}
               />
-            </label>
-          </div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              Image:
-              <input
+            </div>
+            {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="gcash_receipt" className="text-right">
+                GCash Receipt
+              </Label>
+              <Input 
+                id="gcash_receipt"
                 type="file"
-                className="text-black h-8 w-64 border border-stone-900"
+                accept="image/png, image/jpeg"
+                className="col-span-3" 
                 onChange={handleImageChange}
               />
-            </label>
-          </div>
-          <div>
-            <label className="text-black text-lg font-semibold mb-1">
-              Quantity:
-              <input
+            </div> */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="merch_quantity" className="text-right">
+                Quantity
+              </Label>
+              <Input
+                id="merch_quantity"
                 type="number"
-                className="text-black h-8 w-64 border border-stone-900"
-                value={merch_quantity}
+                className="col-span-3"
                 onChange={(e) => setMerchQuantity(e.target.value)}
               />
-            </label>
+            </div>
           </div>
-          <button
-            type="button"
-            className="h-10 w-20 bg-yellow-400 border rounded-md hover:bg-blue-800"
-            onClick={preOrderMerch}
-          >
-            Save
-          </button>
-        </div>
-      </Modal>
+          <DialogFooter>
+            <Button type="submit" onClick={preOrderMerch}>
+              Confirm Pre-Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Fragment>
   );
 };

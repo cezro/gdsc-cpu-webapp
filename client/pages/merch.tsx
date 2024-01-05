@@ -15,8 +15,7 @@ type Merch = {
 
 function Merch() {
   const [merches, setMerches] = useState<Merch[]>([]);
-  // const [userId, setUserId] = useState<number | string>('');
-  // merches.forEach((merch) => alert(merch));
+
   const getAllMerches = async () => {
     try {
       const response = await fetch(`${host}/admin/admin-merch`, {
@@ -25,9 +24,7 @@ function Merch() {
         },
       });
       const jsonData = await response.json();
-      // const userId = jsonData.userId;
 
-      // setUserId(userId);
       setMerches(jsonData.allMerches);
     } catch (err) {
       console.error(getErrorMessage(err));
