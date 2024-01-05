@@ -18,9 +18,11 @@ export default function Landing() {
               <div className="h-full w-full flex flex-col justify-center items-center text-center gap-y-8">
                 <div className="font-bold text-3xl sm:text-5xl lg:text-md sm:max-w-xl max-w-xs text-white dark:text-white bg-secondary/60 p-4 rounded-lg">
                   Google Developers Student Clubs - CPU
-                  <Button size="lg" className="w-full py-6 text-xl">
-                    <Link href="/signup">Sign-up Now</Link>
-                  </Button>
+                  <Link href="/signup">
+                    <Button size="lg" className="w-full py-6 text-xl">
+                      Sign-up Now
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
