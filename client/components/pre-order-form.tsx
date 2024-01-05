@@ -93,8 +93,6 @@ const PreOrderForm = ({ merch }: any) => {
 
       console.log('Form uploaded successfully', jsonData);
 
-      console.log(`User ID: ${user_id}, Merch ID: ${merch_id}`);
-
       // window.location.href = '/merch';
     } catch (err) {
       console.error('Error uploading image', err);
@@ -107,9 +105,11 @@ const PreOrderForm = ({ merch }: any) => {
   //   setImage(file || null);
   // };
 
+  const [open, setOpen] = useState(false);
+
   return (
     <Fragment>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className="w-full">Pre-Order</Button>
         </DialogTrigger>
