@@ -15,7 +15,7 @@ type Merch = {
 
 function Merch() {
   const [merches, setMerches] = useState<Merch[]>([]);
-  // merches.forEach((merch) => alert(merch));
+
   const getAllMerches = async () => {
     try {
       const response = await fetch(`${host}/admin/admin-merch`, {
