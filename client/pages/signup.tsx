@@ -37,7 +37,7 @@ function SignUp() {
 
       const data = await response.json();
       console.log(data);
-      window.location.href = '/landing';
+      window.location.href = '/login';
     } catch (error) {
       console.error('Error during signup:', error);
     }
@@ -48,7 +48,7 @@ function SignUp() {
   };
 
   return (
-    <form action="/landing-page" method="post" onSubmit={handleSubmit}>
+    <form method="post" onSubmit={handleSubmit}>
       <div className="w-full bg-[#07063D] flex flex-col items-center justify-center min-h-screen">
         <div className="top-5 left-1/2">
           <Image

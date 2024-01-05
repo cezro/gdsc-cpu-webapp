@@ -89,7 +89,9 @@ const InputMerch = () => {
             {image && <img src={URL.createObjectURL(image)} alt="Uploaded" />}
           </div>
           <div>
-            <p className="text-black text-lg font-semibold mb-1">Merch Price</p>
+            <p className="text-black text-lg font-semibold mb-1">
+              Merch Price (₱)
+            </p>
             <input
               type="number"
               className="text-black h-8 w-64 border border-stone-900"

@@ -4,4 +4,13 @@ export interface Merch {
   description: string;
   image: File | null;
   price: number;
-};
+}
+
+export interface User {
+  id: number;
+  fname: string;
+  lname: string;
+  email: string;
+  password: string;
+  unique_token: string;
+}

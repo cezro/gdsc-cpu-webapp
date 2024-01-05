@@ -28,7 +28,7 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        window.location.href = '/admin/admin-home';
+        window.location.href = '/landing';
       }
     } catch (error) {
       console.error('Error while login', error);

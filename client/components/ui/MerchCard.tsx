@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Merch } from '@/types';
 import host from '@/utils/host';
+import PreOrderForm from '../pre-order-form';
 
 interface MerchCard {
   data: Merch;
@@ -11,7 +12,7 @@ interface MerchCard {
 const MerchCard: React.FC<MerchCard> = ({ data }) => {
   return (
     <Link
-      href="/merch"
+      href={`/merch`}
       className="outline-0 focus:ring-2 hover:ring-2 ring-primary transition duration-300 rounded-lg"
     >
       <Card className="rounded-lg border-2">
@@ -32,7 +33,10 @@ const MerchCard: React.FC<MerchCard> = ({ data }) => {
             <p className="text-sm text-primary/80">{data.description}</p>
           </div>
           <div className="flex items-center justify-between">
-            P {data?.price}
+            Price: ₱{data?.price}
+          </div>
+          <div className="mt-4 w-full">
+            <PreOrderForm merch={data} />
           </div>
         </CardFooter>
       </Card>

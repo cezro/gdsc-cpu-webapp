@@ -74,7 +74,7 @@ const ListMerch = () => {
               <td className="border px-4 py-2">
                 <img src={`${host}/${merch.image}`} alt={merch.name} />
               </td>
-              <td className="border px-4 py-2">P {merch.price}</td>
+              <td>₱{merch.price}</td>
               <td>
                 <EditMerch merch={merch} />
               </td>

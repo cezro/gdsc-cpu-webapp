@@ -39,6 +39,8 @@ async function serverStart() {
       );
       userData = { me: rows[0] };
       console.log(userData);
+      request.userId = userId;
+
       next();
     } catch (err) {
       console.error(getErrorMessage(err));
@@ -197,6 +199,8 @@ async function serverStart() {
       }
     )
     .get('/admin/admin-merch', authenticateToken, async (request, response) => {
+      const userId = (request as any).userId;
+
       // get all merch
       let allMerches;
       try {
@@ -208,7 +212,7 @@ async function serverStart() {
         console.error(getErrorMessage(err));
       }
 
-      response.json({ allMerches });
+      response.json({ allMerches, userId });
     })
     .get(
       '/admin/admin-merch/:id',
@@ -308,7 +312,7 @@ async function serverStart() {
 
           const newMerch = await pool.query(query, values);
 
-          // response.json(newMerch.rows[0]);
+          response.render('pre-order-form', { merch_id });
           return response
             .status(200)
             .json({ success: true, data: newMerch.rows[0] });
