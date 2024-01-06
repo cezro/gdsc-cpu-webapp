@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 import pool from './db/database/db';
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { getErrorMessage } from './src/functions/getErrorMessage';
@@ -39,6 +38,8 @@ async function serverStart() {
       );
       userData = { me: rows[0] };
       console.log(userData);
+      request.userId = userId;
+
       next();
     } catch (err) {
       console.error(getErrorMessage(err));
@@ -197,6 +198,8 @@ async function serverStart() {
       }
     )
     .get('/admin/admin-merch', authenticateToken, async (request, response) => {
+      const userId = (request as any).userId;
+
       // get all merch
       let allMerches;
       try {
@@ -208,7 +211,7 @@ async function serverStart() {
         console.error(getErrorMessage(err));
       }
 
-      response.json({ allMerches });
+      response.json({ allMerches, userId });
     })
     .get(
       '/admin/admin-merch/:id',
@@ -267,18 +270,18 @@ async function serverStart() {
     .post(
       '/pre-order-form',
       authenticateToken,
-      upload(preOrderReceiptsStorage).single('image'),
+      // upload(preOrderReceiptsStorage).single('image'),
       async (request, response) => {
         try {
-          if (!request.file) {
-            return response.status(400).json({ error: 'No image provided' });
-          }
+          //   if (!request.file) {
+          //     return response.status(400).json({ error: 'No image provided', image: '' });
+          //   }
 
-          const gcash_receipt = path.join(
-            'uploads',
-            'pre-order-receipts',
-            request.file.filename
-          );
+          // const gcash_receipt = path.join(
+          //   'uploads',
+          //   'pre-order-receipts',
+          //   request.file.filename
+          // );
           const {
             user_id,
             shipping_province,
@@ -291,8 +294,8 @@ async function serverStart() {
           } = request.body;
 
           const query = `INSERT INTO pre_order_forms 
-              (user_id, shipping_province, shipping_city, shipping_street, shipping_house_number, merch_id, gcash_receipt, merch_quantity, date_time_submitted) 
-              VALUES ($1, $2, $3, $4) 
+              (user_id, shipping_province, shipping_city, shipping_street, shipping_house_number, merch_id, merch_quantity, date_time_submitted) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
               RETURNING *`;
           const values = [
             user_id,
@@ -301,17 +304,14 @@ async function serverStart() {
             shipping_street,
             shipping_house_number,
             merch_id,
-            gcash_receipt,
+            // gcash_receipt,
             merch_quantity,
             date_time_submitted,
           ];
 
           const newMerch = await pool.query(query, values);
 
-          // response.json(newMerch.rows[0]);
-          return response
-            .status(200)
-            .json({ success: true, data: newMerch.rows[0] });
+          response.status(200).json({ success: true, data: newMerch.rows[0] });
         } catch (err) {
           // console.error(getErrorMessage(err));
           console.error('Error uploading image', err);
@@ -320,6 +320,8 @@ async function serverStart() {
       }
     )
     .get('/pre-order-form', authenticateToken, async (request, response) => {
+      const userId = (request as any).userId;
+
       // get all pre-orders
       let allPreOrders;
       try {
@@ -331,8 +333,33 @@ async function serverStart() {
         console.error(getErrorMessage(err));
       }
 
-      response.json({ allPreOrders });
+      response.json({ allPreOrders, userId });
     })
+    .get(
+      '/pre-order-form-merch-join',
+      authenticateToken,
+      async (request, response) => {
+        // get all pre-orders
+        let allMerchStats;
+        try {
+          const { rows: merchPreOrderRows } = await connection.query(
+            `SELECT merch.name, pre_order_forms.merch_quantity, users.fname, users.lname, users.email, 
+          pre_order_forms.shipping_province, pre_order_forms.shipping_city, pre_order_forms.shipping_street, 
+          pre_order_forms.shipping_house_number, pre_order_forms.date_time_submitted
+          FROM pre_order_forms 
+          RIGHT JOIN merch ON 
+          pre_order_forms.merch_id = merch.id
+          LEFT JOIN users ON 
+          pre_order_forms.user_id = users.id`
+          );
+          allMerchStats = merchPreOrderRows;
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+
+        response.json({ allMerchStats });
+      }
+    )
     .delete(
       '/pre-order-form/:id',
       authenticateToken,

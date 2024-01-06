@@ -8,14 +8,17 @@ import { Menu } from 'lucide-react';
 const CustomHeader = () => {
   const routes = [
     {
+      id: 'home',
       href: '/landing',
       label: 'Home',
     },
     {
+      id: 'events',
       href: '/events',
       label: 'Events',
     },
-    {
+    { 
+      id: 'merch',
       href: '/merch',
       label: 'Merch',
     },
@@ -32,9 +35,9 @@ const CustomHeader = () => {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col gap-4">
-                  {routes.map((route, i) => (
+                  {routes.map((route) => (
                     <Link
-                      key={i}
+                      key={route.id}
                       href={route.href}
                       className="block px-2 py-1 text-lg"
                     >
@@ -49,10 +52,9 @@ const CustomHeader = () => {
             </Link>
           </div>
           <nav className="mx-6 flex items-center space-x-4 lg:space-x-6 hidden md:block">
-            {routes.map((route, i) => (
-              <Button asChild variant="ghost">
+            {routes.map((route) => (
+              <Button key={route.id} asChild variant="ghost">
                 <Link
-                  key={i}
                   href={route.href}
                   className="text-sm font-medium transition-colors"
                 >

@@ -7,18 +7,24 @@ import host from '@/utils/host';
 type Merch = {
   id: number;
   name: string;
-  description: string;
-  image: File | null;
-  price: number;
+  merch_quantity: number;
+  fname: string;
+  lname: string;
+  email: string;
+  shipping_province: string;
+  shipping_city: string;
+  shipping_street: string;
+  shipping_house_number: string;
+  date_time_submitted: string;
 };
 
-const ListMerch = () => {
+const PreOrderStats = () => {
   const [merches, setMerches] = useState<Merch[]>([]);
 
   //delete merch function
-  const deleteMerch = async (id: number) => {
+  const deletePreorder = async (id: number) => {
     try {
-      const deleteMerch = await fetch(`${host}/admin/admin-merch/${id}`, {
+      const deletePreorder = await fetch(`${host}/pre-order-form/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -31,16 +37,16 @@ const ListMerch = () => {
     }
   };
 
-  const getAllMerches = async () => {
+  const getAllMerchStats = async () => {
     try {
-      const response = await fetch(`${host}/admin/admin-merch`, {
+      const response = await fetch(`${host}/pre-order-form-merch-join`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const jsonData = await response.json();
 
-      setMerches(jsonData.allMerches);
+      setMerches(jsonData.allMerchStats);
     } catch (err) {
       console.error(getErrorMessage(err));
     }
@@ -48,7 +54,7 @@ const ListMerch = () => {
 
   useEffect(
     () => {
-      getAllMerches();
+      getAllMerchStats();
     },
     [] /* bracket ensures useEffect does not repeatedly request multiple times */
   );
@@ -59,10 +65,15 @@ const ListMerch = () => {
         <thead>
           <tr>
             <th className="px-4 py-2">Merch Name</th>
-            <th className="px-4 py-2">Description</th>
-            <th className="px-4 py-2">Image</th>
-            <th className="px-4 py-2">Price</th>
-            <th className="px-4 py-2">Edit</th>
+            <th className="px-4 py-2">Quantity</th>
+            <th className="px-4 py-2">User Firstname</th>
+            <th className="px-4 py-2">User Lastname</th>
+            <th className="px-4 py-2">User Email</th>
+            <th className="px-4 py-2">Province</th>
+            <th className="px-4 py-2">City</th>
+            <th className="px-4 py-2">Street</th>
+            <th className="px-4 py-2">House #</th>
+            <th className="px-4 py-2">Date Submitted</th>
             <th className="px-4 py-2">Delete</th>
           </tr>
         </thead>
@@ -70,18 +81,21 @@ const ListMerch = () => {
           {merches.map((merch) => (
             <tr key={merch.id}>
               <td className="border px-4 py-2">{merch.name}</td>
-              <td className="border px-4 py-2">{merch.description}</td>
+              <td className="border px-4 py-2">{merch.merch_quantity}</td>
+              <td className="border px-4 py-2">{merch.fname}</td>
+              <td className="border px-4 py-2">{merch.lname}</td>
+              <td className="border px-4 py-2">{merch.email}</td>
+              <td className="border px-4 py-2">{merch.shipping_province}</td>
+              <td className="border px-4 py-2">{merch.shipping_city}</td>
+              <td className="border px-4 py-2">{merch.shipping_street}</td>
               <td className="border px-4 py-2">
-                <img src={`${host}/${merch.image}`} alt={merch.name} />
+                {merch.shipping_house_number}
               </td>
-              <td>₱{merch.price}</td>
-              <td>
-                <EditMerch merch={merch} />
-              </td>
+              <td className="border px-4 py-2">{merch.date_time_submitted}</td>
               <td>
                 <button
                   className="h-10 w-20 bg-red-600 border rounded-md hover:bg-blue-800"
-                  onClick={() => deleteMerch(merch.id)}
+                  onClick={() => deletePreorder(merch.id)}
                 >
                   Delete
                 </button>
@@ -94,4 +108,4 @@ const ListMerch = () => {
   );
 };
 
-export default ListMerch;
+export default PreOrderStats;

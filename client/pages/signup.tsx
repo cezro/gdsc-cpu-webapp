@@ -30,6 +30,7 @@ function SignUp() {
       const email = formData['email'];
       const password = formData['password'];
 
+
       userSchema.parse({
         fname,
         lname,
@@ -37,6 +38,9 @@ function SignUp() {
         password,
       });
       isValid = true;
+      
+
+      
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error('Validation failed:', error.errors);
@@ -46,6 +50,7 @@ function SignUp() {
     }
     if (isValid) {
       try {
+
         const response = await fetch(`${host}/signup`, {
           method: 'POST',
           headers: {
@@ -62,7 +67,7 @@ function SignUp() {
 
         const data = await response.json();
         console.log(data);
-        window.location.href = '/landing';
+        window.location.href = '/login';
       } catch (error) {
         console.error('Error during signup:', error);
       }
@@ -74,7 +79,7 @@ function SignUp() {
   };
 
   return (
-    <form action="/landing-page" method="post" onSubmit={handleSubmit}>
+    <form method="post" onSubmit={handleSubmit}>
       <div className="w-full bg-[#07063D] flex flex-col items-center justify-center min-h-screen">
         <div className="top-5 left-1/2">
           <Image

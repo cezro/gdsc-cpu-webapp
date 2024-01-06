@@ -20,7 +20,7 @@ const EditMerch = ({ merch }: any) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(body),
       });
@@ -110,7 +110,7 @@ const EditMerch = ({ merch }: any) => {
           </div>
           <div>
             <label className="text-black text-lg font-semibold mb-1">
-              Price:
+              Price: ₱
               <input
                 type="text"
                 className="text-black h-8 w-64 border border-stone-900"

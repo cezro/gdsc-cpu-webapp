@@ -48,12 +48,9 @@ function Login() {
         const data = await response.json();
         console.log(data);
 
-        if (response.ok) {
-          localStorage.setItem('token', data.token);
-          window.location.href = '/admin/admin-home';
-        }
-      } catch (error) {
-        console.error('Error while login', error);
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        window.location.href = '/landing';
       }
     }
   };

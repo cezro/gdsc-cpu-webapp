@@ -1,18 +1,17 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Merch } from '@/types';
+import { Event } from '@/types';
 import host from '@/utils/host';
-import PreOrderForm from '../pre-order-form';
 
-interface MerchCard {
-  data: Merch;
+interface EventCard {
+  data: Event;
 }
 
-const MerchCard: React.FC<MerchCard> = ({ data }) => {
+const EventCard: React.FC<EventCard> = ({ data }) => {
   return (
     <Link
-      href={`/merch`}
+      href="/events"
       className="outline-0 focus:ring-2 hover:ring-2 ring-primary transition duration-300 rounded-lg"
     >
       <Card className="rounded-lg border-2">
@@ -33,10 +32,7 @@ const MerchCard: React.FC<MerchCard> = ({ data }) => {
             <p className="text-sm text-primary/80">{data.description}</p>
           </div>
           <div className="flex items-center justify-between">
-            Price: ₱{data?.price}
-          </div>
-          <div className="mt-4 w-full">
-            <PreOrderForm merch={data} />
+            {data.location}
           </div>
         </CardFooter>
       </Card>
@@ -44,4 +40,4 @@ const MerchCard: React.FC<MerchCard> = ({ data }) => {
   );
 };
 
-export default MerchCard;
+export default EventCard;
