@@ -28,7 +28,4 @@ export const eventSchema = z.object({
     .string()
     .min(1, { message: 'Missing Location' })
     .max(255, 'Reached Character Limit'),
-  image: z.string().min(1, { message: 'Image not found' }),
 });
-
-export type Event = z.infer<typeof eventSchema>;
