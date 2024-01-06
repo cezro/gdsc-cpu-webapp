@@ -11,6 +11,10 @@ import path from 'path';
 import { getErrorMessage } from './src/functions/getErrorMessage';
 import defineStorage from './src/functions/defineStorage';
 import upload from './src/functions/upload';
+import validate from './src/functions/validate';
+import { loginSchema, userSchema } from './schemas/user';
+import { merchSchema } from './schemas/merch';
+import { eventSchema } from './schemas/events';
 const PORT = 3001;
 
 async function serverStart() {
@@ -79,47 +83,54 @@ async function serverStart() {
     .use(bodyParser.urlencoded({ extended: true }))
     .post('/signup', async (request, response) => {
       const { fname, lname, email, password } = request.body;
-      const { rows: existingRows } = await connection.query(
-        'SELECT * FROM users WHERE email = $1',
-        [email]
-      );
-      if (existingRows.length > 0) {
-        return response.status(400).json({ error: 'Email already in use' });
+      const isValid = validate(userSchema, { fname, lname, email, password })
+        ?.valid;
+      if (isValid) {
+        const { rows: existingRows } = await connection.query(
+          'SELECT * FROM users WHERE email = $1',
+          [email]
+        );
+        if (existingRows.length > 0) {
+          return response.status(400).json({ error: 'Email already in use' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const { rows } = await connection.query(
+          'INSERT INTO users(fname, lname, email, password) VALUES ($1, $2, $3, $4) RETURNING id, email',
+          [fname, lname, email, hashedPassword]
+        );
+        response.json({ createdUser: rows[0] });
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const { rows } = await connection.query(
-        'INSERT INTO users(fname, lname, email, password) VALUES ($1, $2, $3, $4) RETURNING id, email',
-        [fname, lname, email, hashedPassword]
-      );
-      response.json({ createdUser: rows[0] });
     })
     .post('/login', async (request, response) => {
       const { email, password } = request.body;
-      const { rows } = await connection.query(
-        'SELECT * FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (rows.length === 0) {
-        response
-          .status(401)
-          .json({ message: 'Your Email or Password is Incorrect' });
-      } else {
-        const correctPassword = await bcrypt.compare(
-          password,
-          rows[0].password
+      const isValid = validate(loginSchema, { email, password })?.valid;
+      if (isValid) {
+        const { rows } = await connection.query(
+          'SELECT * FROM users WHERE email = $1',
+          [email]
         );
-        if (correctPassword) {
-          const token = jwt.sign(
-            { userId: rows[0].id, email: rows[0].email },
-            String(process.env.TOKEN_SECRET),
-            { expiresIn: '1h' }
-          );
-          response.json({ token });
-        } else {
+
+        if (rows.length === 0) {
           response
             .status(401)
-            .json({ message: 'Your Email or Password is incorrect' });
+            .json({ message: 'Your Email or Password is Incorrect' });
+        } else {
+          const correctPassword = await bcrypt.compare(
+            password,
+            rows[0].password
+          );
+          if (correctPassword) {
+            const token = jwt.sign(
+              { userId: rows[0].id, email: rows[0].email },
+              String(process.env.TOKEN_SECRET),
+              { expiresIn: '1h' }
+            );
+            response.json({ token });
+          } else {
+            response
+              .status(401)
+              .json({ message: 'Your Email or Password is incorrect' });
+          }
         }
       }
     })
@@ -179,17 +190,20 @@ async function serverStart() {
             request.file.filename
           );
           const { name, description, price } = request.body;
+          const isValid = validate(merchSchema, { name, description, price });
 
-          const query =
-            'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
-          const values = [name, description, filePath, price];
+          if (isValid) {
+            const query =
+              'INSERT INTO merch (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING *';
+            const values = [name, description, filePath, price];
 
-          const newMerch = await pool.query(query, values);
+            const newMerch = await pool.query(query, values);
 
-          // response.json(newMerch.rows[0]);
-          return response
-            .status(200)
-            .json({ success: true, data: newMerch.rows[0] });
+            // response.json(newMerch.rows[0]);
+            return response
+              .status(200)
+              .json({ success: true, data: newMerch.rows[0] });
+          }
         } catch (err) {
           // console.error(getErrorMessage(err));
           console.error('Error uploading image', err);
@@ -267,58 +281,44 @@ async function serverStart() {
         }
       }
     ) // pre-order-form methods
-    .post(
-      '/pre-order-form',
-      authenticateToken,
-      // upload(preOrderReceiptsStorage).single('image'),
-      async (request, response) => {
-        try {
-          //   if (!request.file) {
-          //     return response.status(400).json({ error: 'No image provided', image: '' });
-          //   }
+    .post('/pre-order-form', authenticateToken, async (request, response) => {
+      try {
+        const {
+          user_id,
+          shipping_province,
+          shipping_city,
+          shipping_street,
+          shipping_house_number,
+          merch_id,
+          merch_quantity,
+          date_time_submitted,
+        } = request.body;
 
-          // const gcash_receipt = path.join(
-          //   'uploads',
-          //   'pre-order-receipts',
-          //   request.file.filename
-          // );
-          const {
-            user_id,
-            shipping_province,
-            shipping_city,
-            shipping_street,
-            shipping_house_number,
-            merch_id,
-            merch_quantity,
-            date_time_submitted,
-          } = request.body;
-
-          const query = `INSERT INTO pre_order_forms 
+        const query = `INSERT INTO pre_order_forms 
               (user_id, shipping_province, shipping_city, shipping_street, shipping_house_number, merch_id, merch_quantity, date_time_submitted) 
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
               RETURNING *`;
-          const values = [
-            user_id,
-            shipping_province,
-            shipping_city,
-            shipping_street,
-            shipping_house_number,
-            merch_id,
-            // gcash_receipt,
-            merch_quantity,
-            date_time_submitted,
-          ];
+        const values = [
+          user_id,
+          shipping_province,
+          shipping_city,
+          shipping_street,
+          shipping_house_number,
+          merch_id,
+          // gcash_receipt,
+          merch_quantity,
+          date_time_submitted,
+        ];
 
-          const newMerch = await pool.query(query, values);
+        const newMerch = await pool.query(query, values);
 
-          response.status(200).json({ success: true, data: newMerch.rows[0] });
-        } catch (err) {
-          // console.error(getErrorMessage(err));
-          console.error('Error uploading image', err);
-          return response.status(500).json({ error: 'Internal Server Error' });
-        }
+        response.status(200).json({ success: true, data: newMerch.rows[0] });
+      } catch (err) {
+        // console.error(getErrorMessage(err));
+        console.error('Error uploading image', err);
+        return response.status(500).json({ error: 'Internal Server Error' });
       }
-    )
+    })
     .get('/pre-order-form', authenticateToken, async (request, response) => {
       const userId = (request as any).userId;
 
@@ -399,17 +399,25 @@ async function serverStart() {
             request.file.filename
           );
           const { name, description, date, time, location } = request.body;
+          const isValid = validate(eventSchema, {
+            name,
+            description,
+            date,
+            time,
+            location,
+          })?.valid;
+          if (isValid) {
+            const query =
+              'INSERT INTO events (name, description, image, date, time, location) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+            const values = [name, description, filePath, date, time, location];
 
-          const query =
-            'INSERT INTO events (name, description, image, date, time, location) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
-          const values = [name, description, filePath, date, time, location];
+            const newEvent = await pool.query(query, values);
 
-          const newEvent = await pool.query(query, values);
-
-          // response.json(newEvent.rows[0]);
-          return response
-            .status(200)
-            .json({ success: true, data: newEvent.rows[0] });
+            // response.json(newEvent.rows[0]);
+            return response
+              .status(200)
+              .json({ success: true, data: newEvent.rows[0] });
+          }
         } catch (err) {
           // console.error(getErrorMessage(err));
           console.error('Error uploading image', err);
