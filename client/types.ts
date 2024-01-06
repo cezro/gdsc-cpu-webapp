@@ -14,3 +14,13 @@ export interface User {
   password: string;
   unique_token: string;
 }
+
+export interface Event {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  image: File | null;
+}

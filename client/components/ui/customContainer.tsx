@@ -1,6 +1,6 @@
 interface ContainerProps {
   children: React.ReactNode
-};
+}
 
 const CustomContainer: React.FC<ContainerProps> = ({ children }) => {
   return (
