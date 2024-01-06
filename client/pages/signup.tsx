@@ -30,7 +30,6 @@ function SignUp() {
       const email = formData['email'];
       const password = formData['password'];
 
-
       userSchema.parse({
         fname,
         lname,
@@ -38,9 +37,6 @@ function SignUp() {
         password,
       });
       isValid = true;
-      
-
-      
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error('Validation failed:', error.errors);
@@ -50,7 +46,6 @@ function SignUp() {
     }
     if (isValid) {
       try {
-
         const response = await fetch(`${host}/signup`, {
           method: 'POST',
           headers: {
@@ -118,7 +113,7 @@ function SignUp() {
                 </label>
                 <input
                   style={{ background: 'transparent' }}
-                  className="w-full p-2 text-xs border rounded-lg"
+                  className="w-full p-2 text-xs text-white border rounded-lg"
                   type="text"
                   id="firstName"
                   name="fname"
@@ -135,7 +130,7 @@ function SignUp() {
                 </label>
                 <input
                   style={{ background: 'transparent' }}
-                  className="w-full p-2 text-xs border rounded-lg"
+                  className="w-full p-2 text-xs text-white border rounded-lg"
                   type="text"
                   id="lastName"
                   name="lname"
@@ -150,7 +145,7 @@ function SignUp() {
               </label>
               <input
                 style={{ background: 'transparent' }}
-                className="w-full p-2 text-xs border rounded-lg"
+                className="w-full p-2 text-xs text-white border rounded-lg"
                 type="text"
                 id="email"
                 name="email"
@@ -159,12 +154,12 @@ function SignUp() {
               />
             </div>
             <div className="mb-4">
-              <label className="text-gray-300 text-xs pl-2" htmlFor="password">
+              <label className="text-white text-xs pl-2" htmlFor="password">
                 Password
               </label>
               <input
                 style={{ background: 'transparent' }}
-                className="w-full p-2 text-xs border rounded-lg"
+                className="w-full p-2 text-xs text-white border rounded-lg"
                 type="password"
                 id="password"
                 name="password"
