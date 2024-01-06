@@ -9,7 +9,23 @@ export const eventSchema = z.object({
     .string()
     .min(1, { message: 'Missing Description' })
     .max(255, 'Reached Character Limit'),
-  date: z.date(),
+  date: z.string().refine((value) => {
+    const parts = value.split('/');
+
+    if (parts.length !== 3) {
+      throw new Error('Invalid date format. Please use MM/DD/YYYY.');
+    }
+
+    const [month, day, year] = parts.map(Number);
+    return (
+      month >= 1 &&
+      month <= 12 &&
+      day >= 1 &&
+      day <= 31 &&
+      year >= 1000 &&
+      year <= 9999
+    );
+  }, 'Invalid date format. Please use MM/DD/YYYY.'),
   time: z
     .string()
     .regex(/^\d{2}:\d{2}:\d{2}$/)
@@ -28,7 +44,4 @@ export const eventSchema = z.object({
     .string()
     .min(1, { message: 'Missing Location' })
     .max(255, 'Reached Character Limit'),
-  image: z.string().min(1, { message: 'Image not found' }),
 });
-
-export type Event = z.infer<typeof eventSchema>;
