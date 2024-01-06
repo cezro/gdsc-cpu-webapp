@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { getErrorMessage } from '@/utils/utilFunctions';
 import CustomHeader from '@/components/CustomHeader';
 import CustomContainer from '@/components/ui/customContainer';
-import EventList from '@/components/EventList';
+import EventList from '../components/EventList';
 import host from '@/utils/host';
 
 type Event = {
