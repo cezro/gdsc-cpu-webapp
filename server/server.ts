@@ -335,6 +335,31 @@ async function serverStart() {
 
       response.json({ allPreOrders, userId });
     })
+    .get(
+      '/pre-order-form-merch-join',
+      authenticateToken,
+      async (request, response) => {
+        // get all pre-orders
+        let allMerchStats;
+        try {
+          const { rows: merchPreOrderRows } = await connection.query(
+            `SELECT merch.name, pre_order_forms.merch_quantity, users.fname, users.lname, users.email, 
+          pre_order_forms.shipping_province, pre_order_forms.shipping_city, pre_order_forms.shipping_street, 
+          pre_order_forms.shipping_house_number, pre_order_forms.date_time_submitted
+          FROM pre_order_forms 
+          RIGHT JOIN merch ON 
+          pre_order_forms.merch_id = merch.id
+          LEFT JOIN users ON 
+          pre_order_forms.user_id = users.id`
+          );
+          allMerchStats = merchPreOrderRows;
+        } catch (err) {
+          console.error(getErrorMessage(err));
+        }
+
+        response.json({ allMerchStats });
+      }
+    )
     .delete(
       '/pre-order-form/:id',
       authenticateToken,
