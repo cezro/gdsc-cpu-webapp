@@ -25,7 +25,6 @@ const InputMerch = () => {
         name,
         description,
         price,
-        image,
       });
       isValid = true;
     } catch (error) {
@@ -65,6 +64,7 @@ const InputMerch = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setImage(file || null);
+    console.log(file);
   };
 
   return (

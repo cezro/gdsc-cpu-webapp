@@ -29,7 +29,6 @@ const InputMerch = () => {
         date,
         time,
         location,
-        image,
       });
       isValid = true;
     } catch (error) {
