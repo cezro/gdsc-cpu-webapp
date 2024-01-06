@@ -4,7 +4,7 @@ import host from '@/utils/host';
 import { loginSchema } from '@/schemas/user';
 import { z } from 'zod';
 
-function Login() {
+export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -125,5 +125,3 @@ function Login() {
     </form>
   );
 }
-
-export default Login;
