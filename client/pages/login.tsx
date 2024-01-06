@@ -48,9 +48,12 @@ export default function Login() {
         const data = await response.json();
         console.log(data);
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        window.location.href = '/landing';
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/landing';
+        }
+      } catch (error) {
+        console.error('Error during signup:', error);
       }
     }
   };
